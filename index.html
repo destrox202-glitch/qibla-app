@@ -703,12 +703,25 @@ window.onMethodChange = function() {
 // ══════════════════════════════════════════════════════════════
 //  COMPASS ORIENTATION
 // ══════════════════════════════════════════════════════════════
+let headingBuffer = [];
 function onOrientation(e) {
   let h = null;
   if (e.webkitCompassHeading != null) h = e.webkitCompassHeading;
   else if (e.alpha != null) h = (360 - e.alpha) % 360;
   if (h == null) return;
-  heading = h;
+
+  // Keep last 5 readings and average them
+  headingBuffer.push(h);
+  if (headingBuffer.length > 5) headingBuffer.shift();
+
+  // Circular mean to handle 0/360 wraparound
+  let sinSum = 0, cosSum = 0;
+  for (let r of headingBuffer) {
+    sinSum += Math.sin(r * Math.PI / 180);
+    cosSum += Math.cos(r * Math.PI / 180);
+  }
+  heading = (Math.atan2(sinSum, cosSum) * 180 / Math.PI + 360) % 360;
+
   if (!hasCompass) {
     hasCompass = true;
     document.getElementById('nosensor').style.display = 'none';
@@ -745,7 +758,7 @@ window.enableIOSCompass = async function() {
 (function tick() {
   if (qibla !== null) {
     const target = (qibla - heading + 360) % 360;
-    dispAngle = lerp(dispAngle, target, 0.03);
+    dispAngle = lerp(dispAngle, target, 0.04);
     document.getElementById('needle-svg').style.transform = `rotate(${dispAngle}deg)`;
     document.getElementById('c-heading').textContent = hasCompass
       ? `${Math.round(heading)}° ${card(heading)}` : 'No sensor';
