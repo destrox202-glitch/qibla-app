@@ -617,9 +617,9 @@ function renderPrayers() {
   if (userLat === null) return;
 
   const now    = new Date();
-  const tzOff  = -now.getTimezoneOffset() / 60;
-  const times  = PT.compute(now, userLat, userLng, tzOff, currentMethod);
-
+  const tzOff = -now.getTimezoneOffset() / 60;
+console.log('DEBUG lat:', userLat, 'lng:', userLng, 'tz:', tzOff);
+const times  = PT.compute(now, userLat, userLng, tzOff, currentMethod);
   // Show sections
   document.getElementById('prayer-loading').style.display  = 'none';
   document.getElementById('prayer-error').style.display    = 'none';
