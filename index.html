@@ -394,15 +394,16 @@ const PT = (() => {
   function compute(date, lat, lng, tzOffset, methodKey) {
     const m  = METHODS[methodKey] || METHODS.MWL;
     const jd = julianDate(date.getFullYear(), date.getMonth()+1, date.getDate())
-               - lng/360; // shift JD to local solar day
+           - lng/360
+           + tzOffset/24; // shift JD to local solar day
 
     // Initial estimates — iterate 2× for accuracy
     let times = { fajr:5, sunrise:6, dhuhr:12, asr:13, sunset:18, maghrib:18, isha:18 };
 
-    for (let i = 0; i < 2; i++) {
+    for (let i = 0; i < 3; i++) {
       times.fajr    = sunAngleTime(jd, lat, lng, -m.fajr, -1);
       times.sunrise = sunAngleTime(jd, lat, lng, -0.8333, -1);
-      times.dhuhr   = midDay(jd, lng) + 1/60;          // 1 min after solar noon
+      times.dhuhr   = midDay(jd, lng);          // 1 min after solar noon
       times.asr     = asrTime(jd, lat, lng, m.asr);
       times.sunset  = sunAngleTime(jd, lat, lng, -0.8333, +1);
       times.maghrib = m.maghrib.ang > 0
