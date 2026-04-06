@@ -17,6 +17,7 @@
 html,body{
   height:100%;
   background:#07101d;
+  -webkit-background-color:#07101d;
   font-family:Georgia,'Times New Roman',serif;
   color:#e8d5a3;
   overflow:hidden;
@@ -739,7 +740,7 @@ window.enableIOSCompass = async function() {
 (function tick() {
   if (qibla !== null) {
     const target = (qibla - heading + 360) % 360;
-    dispAngle = lerp(dispAngle, target, 0.08);
+    dispAngle = lerp(dispAngle, target, 0.05);
     document.getElementById('needle-svg').style.transform = `rotate(${dispAngle}deg)`;
     document.getElementById('c-heading').textContent = hasCompass
       ? `${Math.round(heading)}° ${card(heading)}` : 'No sensor';
