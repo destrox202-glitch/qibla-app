@@ -19,39 +19,36 @@ jobs:
           mkdir -p app/src/main/res/drawable
           mkdir -p app/src/main/res/mipmap-anydpi-v26
 
-          echo '<?xml version="1.0" encoding="utf-8"?><layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item><color android:color="#07101D"/></item></layer-list>' > app/src/main/res/drawable/splash.xml
-          echo '<?xml version="1.0" encoding="utf-8"?><layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item><color android:color="#07101D"/></item></layer-list>' > app/src/main/res/drawable/ic_notification_icon.xml
-          echo '<?xml version="1.0" encoding="utf-8"?><layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item><color android:color="#07101D"/></item></layer-list>' > app/src/main/res/drawable/shortcut_0.xml
-          echo '<?xml version="1.0" encoding="utf-8"?><layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item><color android:color="#07101D"/></item></layer-list>' > app/src/main/res/drawable/shortcut_1.xml
-          echo '<?xml version="1.0" encoding="utf-8"?><layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item><color android:color="#07101D"/></item></layer-list>' > app/src/main/res/mipmap-anydpi-v26/ic_maskable.xml
+          # Use real PNG icons from repo
+          cp icon-512.png app/src/main/res/mipmap-hdpi/ic_launcher.png
+          cp icon-512.png app/src/main/res/mipmap-mdpi/ic_launcher.png
+          cp icon-512.png app/src/main/res/mipmap-xhdpi/ic_launcher.png
+          cp icon-512.png app/src/main/res/mipmap-xxhdpi/ic_launcher.png
+          cp icon-512.png app/src/main/res/mipmap-xxxhdpi/ic_launcher.png
 
-          sed -i 's|@drawable/splash|@color/colorPrimary|g' app/src/main/AndroidManifest.xml
+          # Fix manifest references
+          sed -i 's|@drawable/splash|@mipmap/ic_launcher|g' app/src/main/AndroidManifest.xml
           sed -i 's|@drawable/ic_notification_icon|@mipmap/ic_launcher|g' app/src/main/AndroidManifest.xml
+          sed -i 's|@drawable/ic_maskable|@mipmap/ic_launcher|g' app/src/main/AndroidManifest.xml || true
           sed -i 's|@drawable/shortcut_0|@mipmap/ic_launcher|g' app/src/main/res/xml/shortcuts.xml || true
           sed -i 's|@drawable/shortcut_1|@mipmap/ic_launcher|g' app/src/main/res/xml/shortcuts.xml || true
-          sed -i 's|@drawable/ic_maskable|@mipmap/ic_launcher|g' app/src/main/AndroidManifest.xml || true
 
-      - name: Build APK
+          # Remove broken drawable XMLs if they exist
+          rm -f app/src/main/res/drawable/splash.xml
+          rm -f app/src/main/res/drawable/ic_notification_icon.xml
+          rm -f app/src/main/res/drawable/shortcut_0.xml
+          rm -f app/src/main/res/drawable/shortcut_1.xml
+          rm -f app/src/main/res/mipmap-anydpi-v26/ic_maskable.xml
+
+      - name: Build Debug APK
         run: |
           chmod +x gradlew
-          ./gradlew assembleRelease --no-daemon --max-workers=2
+          ./gradlew assembleDebug --no-daemon --max-workers=2
         env:
           JAVA_TOOL_OPTIONS: "-Xmx1g"
-
-      - name: Sign APK
-        run: |
-          $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
-            --ks android.keystore \
-            --ks-key-alias Destro \
-            --ks-pass pass:Qibla2025! \
-            --key-pass pass:Qibla2025! \
-            --out app-signed.apk \
-            app/build/outputs/apk/release/app-release-unsigned.apk
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: qibla-apk
-          path: |
-            app-signed.apk
-            app/build/outputs/bundle/release/*.aab
+          path: app/build/outputs/apk/debug/app-debug.apk
