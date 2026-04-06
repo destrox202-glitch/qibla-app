@@ -4,7 +4,7 @@
   "description": "Find Qibla direction and accurate prayer times using your live GPS. No ads, no account, no data collected.",
   "start_url": "/qibla-compass.html",
   "scope": "/",
-  "display": "standalone",
+  "display": "fullscreen",
   "orientation": "portrait",
   "background_color": "#07101d",
   "theme_color": "#07101d",
