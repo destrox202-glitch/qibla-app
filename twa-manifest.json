@@ -13,7 +13,7 @@
   "navigationDividerColorDark": "#000000",
   "backgroundColor": "#07101D",
   "enableNotifications": true,
-  "startUrl": "/",
+  "launchUrl": "https://legendary-mochi-d15d36.netlify.app/",
   "iconUrl": "https://legendary-mochi-d15d36.netlify.app/icon-512.png",
   "maskableIconUrl": "https://legendary-mochi-d15d36.netlify.app/icon-512.png",
   "splashScreenFadeOutDuration": 300,
