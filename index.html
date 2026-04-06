@@ -495,7 +495,7 @@ function calcDist(lat,lng) {
 }
 function lerp(a, b, t) {
   let d = ((b - a + 540) % 360) - 180;
-  if (Math.abs(d) < 0.3) return b;
+  if (Math.abs(d) < 0.5) return b;
   return a + d * t;
 }
 function card(d){return["N","NE","E","SE","S","SW","W","NW"][Math.round(((d%360)+360)%360/45)%8]}
