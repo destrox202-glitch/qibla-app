@@ -319,130 +319,151 @@ footer{text-align:center;padding:14px 20px 0;position:relative;z-index:1;flex-sh
 //  sun-position method, matches Google / Islamic Finder results.
 // ══════════════════════════════════════════════════════════════
 
-const PT = (() => {
-  const PI = Math.PI;
-  const sin = x => Math.sin(x * PI/180);
-  const cos = x => Math.cos(x * PI/180);
-  const tan = x => Math.tan(x * PI/180);
-  const asin = x => Math.asin(x) * 180/PI;
-  const atan2 = (y,x) => Math.atan2(y,x) * 180/PI;
-  const arccot = x => Math.atan(1/x) * 180/PI;
+// ══════════════════════════════════════════════════════════════
+//  PRAYER TIMES — Aladhan.com API (most accurate globally)
+// ══════════════════════════════════════════════════════════════
 
-  const fixAngle = x => x - 360 * Math.floor(x/360);
-  const fixHour  = x => x - 24  * Math.floor(x/24);
-
-  // Julian date
-  function julianDate(y, m, d) {
-    if (m <= 2) { y--; m += 12; }
-    const A = Math.floor(y/100), B = 2 - A + Math.floor(A/4);
-    return Math.floor(365.25*(y+4716)) + Math.floor(30.6001*(m+1)) + d + B - 1524.5;
-  }
-
-  // Sun declination + equation of time at given Julian date
-  function sunPosition(jd) {
-    const D  = jd - 2451545.0;
-    const g  = fixAngle(357.529 + 0.98560028*D);
-    const q  = fixAngle(280.459 + 0.98564736*D);
-    const L  = fixAngle(q + 1.9150*sin(g) + 0.0200*sin(2*g));
-    const e  = 23.439 - 0.00000036*D;
-    const RA = fixHour(atan2(cos(e)*sin(L), cos(L)) / 15);
-    return {
-      decl: asin(sin(e)*sin(L)),
-      eqt:  q/15 - RA           // equation of time in hours
-    };
-  }
-
-  // Solar noon in UTC hours for given longitude
-  function midDay(jd, lng) {
-    return fixHour(12 - lng/15 - sunPosition(jd).eqt);
-  }
-
-  // Time when sun is at `angle` degrees above/below horizon
-  // dir: +1 = afternoon (CW), -1 = morning (CCW)
-  function sunAngleTime(jd, lat, lng, angle, dir) {
-    const noon = midDay(jd, lng);
-    const decl = sunPosition(jd + noon/24).decl;
-    const cosH  = (-sin(angle) - sin(decl)*sin(lat)) / (cos(decl)*cos(lat));
-    if (cosH < -1) return dir > 0 ? noon + 24 : noon - 24; // never sets/rises
-    if (cosH >  1) return NaN;
-    const T = Math.acos(cosH) * 180/PI / 15;
-    return noon + dir * T;
-  }
-
-  // Asr: shadow length = asrFactor + length of object at solar noon
-  function asrTime(jd, lat, lng, asrFactor) {
-    const noon = midDay(jd, lng);
-    const decl = sunPosition(jd + noon/24).decl;
-    const angle = -arccot(asrFactor + tan(Math.abs(lat - decl)));
-    return sunAngleTime(jd, lat, lng, angle, +1);
-  }
-
-  // ── Calculation methods ──────────────────────────────────────
-  // Each entry: { fajrAngle, isha: angle OR {min: N}, maghrib: angle OR {min:0}=sunset, asrFactor }
-  const METHODS = {
-    MWL:     { fajr:18,    isha:{ang:17},    maghrib:{ang:0},  asr:1 },
-    ISNA:    { fajr:15,    isha:{ang:15},    maghrib:{ang:0},  asr:1 },
-    Egypt:   { fajr:19.5,  isha:{ang:17.5},  maghrib:{ang:0},  asr:1 },
-    Makkah:  { fajr:18.5,  isha:{min:90},    maghrib:{ang:0},  asr:1 },
-    Karachi: { fajr:18,    isha:{ang:18},    maghrib:{ang:0},  asr:1 },
-    Tehran:  { fajr:17.7,  isha:{ang:14},    maghrib:{ang:4.5},asr:1 },
-    Jafari:  { fajr:16,    isha:{ang:14},    maghrib:{ang:4},  asr:1 },
+async function fetchPrayerTimes(lat, lng, method) {
+  const methodMap = {
+    'MWL':     3,
+    'ISNA':    2,
+    'Egypt':   5,
+    'Makkah':  4,
+    'Karachi': 1,
+    'Tehran':  7,
+    'Jafari':  0,
   };
+  const m = methodMap[method] || 4;
+  const date = new Date();
+  const dateStr = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
+  const url = `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lng}&method=${m}`;
 
-  // ── Main calculation ─────────────────────────────────────────
-  // Returns prayer times as decimal UTC hours, then converts to local.
-  function compute(date, lat, lng, tzOffset, methodKey) {
-    const m  = METHODS[methodKey] || METHODS.MWL;
-    const jd = julianDate(date.getFullYear(), date.getMonth()+1, date.getDate())
-           - lng/360  // shift JD to local solar day
+  const res  = await fetch(url);
+  const data = await res.json();
+  return data.data;
+}
 
-    // Initial estimates — iterate 2× for accuracy
-    let times = { fajr:5, sunrise:6, dhuhr:12, asr:13, sunset:18, maghrib:18, isha:18 };
+function renderPrayers() {
+  if (userLat === null) return;
 
-    for (let i = 0; i < 3; i++) {
-      times.fajr    = sunAngleTime(jd, lat, lng, -m.fajr, -1);
-      times.sunrise = sunAngleTime(jd, lat, lng, -0.8333, -1);
-      times.dhuhr   = midDay(jd, lng);          // 1 min after solar noon
-      times.asr     = asrTime(jd, lat, lng, m.asr);
-      times.sunset  = sunAngleTime(jd, lat, lng, -0.8333, +1);
-      times.maghrib = m.maghrib.ang > 0
-        ? sunAngleTime(jd, lat, lng, -m.maghrib.ang, +1)
-        : times.sunset;
-      times.isha = m.isha.min
-        ? times.maghrib + m.isha.min/60
-        : sunAngleTime(jd, lat, lng, -m.isha.ang, +1);
-    }
+  document.getElementById('prayer-loading').style.display  = 'flex';
+  document.getElementById('prayer-error').style.display    = 'none';
+  document.getElementById('prayer-header').style.display   = 'none';
+  document.getElementById('next-banner').style.display     = 'none';
+  document.getElementById('prayer-list').style.display     = 'none';
 
-    // Convert UTC decimal hours → local time string
-    const fmt = h => {
-      if (isNaN(h) || h == null) return '—';
-      h = ((fixHour(h + tzOffset)) % 24 + 24) % 24;
-      const totalMin = Math.round(h * 60);
-      let hr = Math.floor(totalMin/60) % 24;
-      const mn = totalMin % 60;
-      const ampm = hr >= 12 ? 'PM' : 'AM';
-      hr = hr%12 || 12;
-      return `${hr}:${mn.toString().padStart(2,'0')} ${ampm}`;
-    };
+  fetchPrayerTimes(userLat, userLng, currentMethod)
+    .then(data => {
+      const timings = data.timings;
+      const dateInfo = data.date;
 
-    // Return both formatted strings and decimal local hours for logic
-    const toLocal = h => {
-      if (isNaN(h)) return NaN;
-      return ((fixHour(h + tzOffset)) % 24 + 24) % 24;
-    };
+      // Show sections
+      document.getElementById('prayer-loading').style.display  = 'none';
+      document.getElementById('prayer-header').style.display   = 'flex';
+      document.getElementById('next-banner').style.display     = 'block';
+      document.getElementById('prayer-list').style.display     = 'flex';
 
-    return {
-      fajr:    { str: fmt(times.fajr),    h: toLocal(times.fajr)    },
-      sunrise: { str: fmt(times.sunrise), h: toLocal(times.sunrise) },
-      dhuhr:   { str: fmt(times.dhuhr),   h: toLocal(times.dhuhr)   },
-      asr:     { str: fmt(times.asr),     h: toLocal(times.asr)     },
-      maghrib: { str: fmt(times.maghrib), h: toLocal(times.maghrib) },
-      isha:    { str: fmt(times.isha),    h: toLocal(times.isha)    },
-    };
-  }
+      // Date display
+      document.getElementById('date-bar').textContent =
+        dateInfo.readable ? dateInfo.readable.toUpperCase() : '';
+      document.getElementById('hijri-bar').textContent =
+        `${dateInfo.hijri.day} ${dateInfo.hijri.month.en} ${dateInfo.hijri.year} AH`;
 
-  return { compute };
-})();
+      // Parse time string "HH:MM" to decimal hours
+      function toDecimal(t) {
+        const [h, m] = t.split(':').map(Number);
+        return h + m/60;
+      }
+
+      // Convert "HH:MM" to 12-hour format
+      function fmt12(t) {
+        const [h, m] = t.split(':').map(Number);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        const hr = h % 12 || 12;
+        return `${hr}:${m.toString().padStart(2,'0')} ${ampm}`;
+      }
+
+      const now  = new Date();
+      const nowH = now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
+
+      const ordered = PRAYERS.map(p => {
+        const key = p.key.charAt(0).toUpperCase() + p.key.slice(1);
+        const rawTime = timings[key] || timings[p.key] || '00:00';
+        return {
+          ...p,
+          h:   toDecimal(rawTime),
+          str: fmt12(rawTime),
+        };
+      });
+
+      // Find current and next prayer
+      let curIdx = -1;
+      for (let i = ordered.length - 1; i >= 0; i--) {
+        if (nowH >= ordered[i].h) { curIdx = i; break; }
+      }
+      const nxtIdx = (curIdx + 1) % ordered.length;
+
+      // Countdown
+      let diffH = ordered[nxtIdx].h - nowH;
+      if (diffH < 0) diffH += 24;
+      const diffMin = Math.round(diffH * 60);
+      const h = Math.floor(diffMin/60), m = diffMin % 60;
+      const countdown = h > 0 ? `in ${h}h ${m}m` : `in ${m} min`;
+
+      document.getElementById('next-name').textContent = ordered[nxtIdx].name;
+      document.getElementById('next-time').textContent = ordered[nxtIdx].str;
+      document.getElementById('next-in').textContent   = countdown;
+
+      // Build rows
+      const list = document.getElementById('prayer-list');
+      list.innerHTML = '';
+      ordered.forEach((p, i) => {
+        const isCurrent = i === curIdx;
+        const isPassed  = nowH > p.h && !isCurrent;
+
+        const row = document.createElement('div');
+        row.className = 'prayer-row'
+          + (isCurrent ? ' current' : '')
+          + (isPassed  ? ' passed'  : '');
+        row.style.animationDelay = (i*0.06) + 's';
+
+        let bar = '';
+        if (isCurrent) {
+          const nextH = ordered[nxtIdx].h + (nxtIdx <= curIdx ? 24 : 0);
+          const pct = Math.min(100, Math.max(0, (nowH - p.h)/(nextH - p.h)*100));
+          bar = `<div class="p-progress" style="width:${pct.toFixed(1)}%"></div>`;
+        }
+
+        row.innerHTML = `
+          ${bar}
+          <div class="p-icon">${p.icon}</div>
+          <div class="p-info">
+            <div class="p-name">${p.name}</div>
+            <div class="p-arabic">${p.arabic}</div>
+          </div>
+          <div class="p-time${isPassed?' dim':''}">${p.str}</div>
+          ${isCurrent ? '<div class="p-dot"></div>' : ''}
+        `;
+        list.appendChild(row);
+      });
+
+      // Refresh every minute
+      clearTimeout(prayerTimer);
+      prayerTimer = setTimeout(renderPrayers, 60000);
+    })
+    .catch(err => {
+      console.error('Prayer API error:', err);
+      document.getElementById('prayer-loading').style.display = 'none';
+      document.getElementById('prayer-error').style.display   = 'flex';
+      document.getElementById('prayer-err-msg').textContent   =
+        'Could not load prayer times. Please check your internet connection.';
+    });
+}
+
+window.onMethodChange = function() {
+  currentMethod = document.getElementById('method-sel').value;
+  renderPrayers();
+};
 
 // ══════════════════════════════════════════════════════════════
 //  HIJRI DATE (approximate)
