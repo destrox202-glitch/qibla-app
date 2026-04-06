@@ -394,8 +394,7 @@ const PT = (() => {
   function compute(date, lat, lng, tzOffset, methodKey) {
     const m  = METHODS[methodKey] || METHODS.MWL;
     const jd = julianDate(date.getFullYear(), date.getMonth()+1, date.getDate())
-           - lng/360
-           + tzOffset/24; // shift JD to local solar day
+           - lng/360  // shift JD to local solar day
 
     // Initial estimates — iterate 2× for accuracy
     let times = { fajr:5, sunrise:6, dhuhr:12, asr:13, sunset:18, maghrib:18, isha:18 };
