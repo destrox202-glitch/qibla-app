@@ -493,7 +493,11 @@ function calcDist(lat,lng) {
   const a=Math.sin(dLa/2)**2+Math.cos(lat*D2R)*Math.cos(KAABA.lat*D2R)*Math.sin(dLo/2)**2;
   return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
 }
-function lerp(a,b,t){const d=((b-a+540)%360)-180;return a+d*t}
+function lerp(a, b, t) {
+  let d = ((b - a + 540) % 360) - 180;
+  if (Math.abs(d) < 0.3) return b;
+  return a + d * t;
+}
 function card(d){return["N","NE","E","SE","S","SW","W","NW"][Math.round(((d%360)+360)%360/45)%8]}
 function fmtDist(km){return km>=1000?`${(km/1e3).toFixed(1)}k km`:`${Math.round(km)} km`}
 
@@ -740,7 +744,7 @@ window.enableIOSCompass = async function() {
 (function tick() {
   if (qibla !== null) {
     const target = (qibla - heading + 360) % 360;
-    dispAngle = lerp(dispAngle, target, 0.05);
+    dispAngle = lerp(dispAngle, target, 0.03);
     document.getElementById('needle-svg').style.transform = `rotate(${dispAngle}deg)`;
     document.getElementById('c-heading').textContent = hasCompass
       ? `${Math.round(heading)}° ${card(heading)}` : 'No sensor';
