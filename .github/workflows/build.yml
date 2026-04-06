@@ -14,15 +14,24 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Add icon files
+      -- name: Add icon files
         run: |
           mkdir -p app/src/main/res/drawable
-          cp icon-512.png app/src/main/res/drawable/splash.png
-          cp icon-512.png app/src/main/res/drawable/ic_notification_icon.png
-          cp icon-512.png app/src/main/res/drawable/shortcut_0.png
-          cp icon-512.png app/src/main/res/drawable/shortcut_1.png
           mkdir -p app/src/main/res/mipmap-anydpi-v26
-          cp icon-512.png app/src/main/res/mipmap-anydpi-v26/ic_maskable.png
+
+          # Convert PNG to valid Android drawable XML references
+          echo '<?xml version="1.0" encoding="utf-8"?><layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item><color android:color="#07101D"/></item></layer-list>' > app/src/main/res/drawable/splash.xml
+          echo '<?xml version="1.0" encoding="utf-8"?><layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item><color android:color="#07101D"/></item></layer-list>' > app/src/main/res/drawable/ic_notification_icon.xml
+          echo '<?xml version="1.0" encoding="utf-8"?><layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item><color android:color="#07101D"/></item></layer-list>' > app/src/main/res/drawable/shortcut_0.xml
+          echo '<?xml version="1.0" encoding="utf-8"?><layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item><color android:color="#07101D"/></item></layer-list>' > app/src/main/res/drawable/shortcut_1.xml
+          echo '<?xml version="1.0" encoding="utf-8"?><layer-list xmlns:android="http://schemas.android.com/apk/res/android"><item><color android:color="#07101D"/></item></layer-list>' > app/src/main/res/mipmap-anydpi-v26/ic_maskable.xml
+
+          # Fix AndroidManifest references from @drawable/splash to @color/colorPrimary
+          sed -i 's|@drawable/splash|@color/colorPrimary|g' app/src/main/AndroidManifest.xml
+          sed -i 's|@drawable/ic_notification_icon|@mipmap/ic_launcher|g' app/src/main/AndroidManifest.xml
+          sed -i 's|@drawable/shortcut_0|@mipmap/ic_launcher|g' app/src/main/res/xml/shortcuts.xml || true
+          sed -i 's|@drawable/shortcut_1|@mipmap/ic_launcher|g' app/src/main/res/xml/shortcuts.xml || true
+          sed -i 's|@drawable/ic_maskable|@mipmap/ic_launcher|g' app/src/main/AndroidManifest.xml || true
 
       - name: Build APK
         run: |
