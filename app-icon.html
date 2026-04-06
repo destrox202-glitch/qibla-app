@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8"/>
+<title>Qibla Compass — App Icon</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    font-family: Georgia, serif;
+    gap: 20px;
+  }
+  canvas { border-radius: 22.4%; box-shadow: 0 20px 60px rgba(0,0,0,.8); }
+  .info { color: rgba(255,255,255,.5); font-size: 13px; text-align: center; line-height: 1.8; }
+  button {
+    padding: 12px 32px; border-radius: 12px;
+    background: linear-gradient(135deg,rgba(201,168,76,.3),rgba(201,168,76,.1));
+    border: 1px solid rgba(201,168,76,.5);
+    color: #e8d5a3; font-size: 14px; cursor: pointer;
+    font-family: Georgia, serif; letter-spacing: 1px;
+  }
+  button:hover { background: linear-gradient(135deg,rgba(201,168,76,.45),rgba(201,168,76,.2)); }
+  .sizes { display: flex; gap: 16px; align-items: flex-end; flex-wrap: wrap; justify-content: center; }
+  .preview { text-align: center; color: rgba(255,255,255,.4); font-size: 11px; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<canvas id="icon" width="1024" height="1024"></canvas>
+
+<div class="sizes" id="previews"></div>
+
+<div class="info">
+  1024 × 1024 px — required by both App Store &amp; Google Play<br/>
+  Right-click the icon above → <strong style="color:#C9A84C">Save Image As…</strong><br/>
+  or click the button below to download automatically
+</div>
+
+<button onclick="download()">⬇ Download icon-1024.png</button>
+
+<script>
+const C = document.getElementById('icon');
+const ctx = C.getContext('2d');
+const S = 1024, R = S/2;
+
+// ── BACKGROUND GRADIENT ──────────────────────────────────────
+const bg = ctx.createRadialGradient(R, R*0.85, 0, R, R, R*1.4);
+bg.addColorStop(0,   '#0e2040');
+bg.addColorStop(0.5, '#091828');
+bg.addColorStop(1,   '#050e18');
+ctx.fillStyle = bg;
+ctx.beginPath();
+ctx.roundRect(0, 0, S, S, S*0.224);
+ctx.fill();
+
+// ── GEOMETRIC PATTERN (subtle) ───────────────────────────────
+ctx.save();
+ctx.globalAlpha = 0.055;
+ctx.strokeStyle = '#C9A84C';
+ctx.lineWidth = 1.5;
+const step = 90, cols = Math.ceil(S/step)+2, rows = Math.ceil(S/step)+2;
+for (let r = -1; r < rows; r++) {
+  for (let c = -1; c < cols; c++) {
+    const cx = c*step + (r%2===0?0:step/2), cy = r*step*0.75;
+    const pts = [];
+    for (let i = 0; i < 6; i++) {
+      pts.push([cx + step/2*Math.cos((i*60-30)*Math.PI/180),
+                cy + step/2*Math.sin((i*60-30)*Math.PI/180)]);
+    }
+    ctx.beginPath();
+    pts.forEach(([x,y],i) => i===0?ctx.moveTo(x,y):ctx.lineTo(x,y));
+    ctx.closePath();
+    ctx.stroke();
+    // inner hexagon
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const x = cx + step*0.28*Math.cos((i*60-30)*Math.PI/180);
+      const y2 = cy + step*0.28*Math.sin((i*60-30)*Math.PI/180);
+      i===0?ctx.moveTo(x,y2):ctx.lineTo(x,y2);
+    }
+    ctx.closePath();
+    ctx.stroke();
+  }
+}
+ctx.restore();
+
+// ── OUTER DECORATIVE RING ────────────────────────────────────
+ctx.save();
+ctx.globalAlpha = 0.35;
+ctx.strokeStyle = '#C9A84C';
+ctx.lineWidth = 2;
+ctx.setLineDash([6, 18]);
+ctx.beginPath();
+ctx.arc(R, R, R*0.82, 0, Math.PI*2);
+ctx.stroke();
+ctx.setLineDash([]);
+ctx.restore();
+
+// ── TICK MARKS ───────────────────────────────────────────────
+for (let i = 0; i < 72; i++) {
+  const a = i * 5 * Math.PI/180;
+  const maj = i%9 === 0;
+  const r1 = R*0.82, r2 = maj ? R*0.76 : R*0.79;
+  ctx.beginPath();
+  ctx.moveTo(R + r1*Math.sin(a), R - r1*Math.cos(a));
+  ctx.lineTo(R + r2*Math.sin(a), R - r2*Math.cos(a));
+  ctx.strokeStyle = maj ? '#C9A84C' : 'rgba(201,168,76,0.3)';
+  ctx.lineWidth = maj ? 3 : 1.5;
+  ctx.globalAlpha = 1;
+  ctx.stroke();
+}
+
+// ── INNER CIRCLE ─────────────────────────────────────────────
+const innerR = R * 0.70;
+const innerBg = ctx.createRadialGradient(R, R*0.9, 0, R, R, innerR);
+innerBg.addColorStop(0, '#112035');
+innerBg.addColorStop(1, '#060f1c');
+ctx.beginPath();
+ctx.arc(R, R, innerR, 0, Math.PI*2);
+ctx.fillStyle = innerBg;
+ctx.fill();
+ctx.strokeStyle = 'rgba(201,168,76,0.3)';
+ctx.lineWidth = 2;
+ctx.stroke();
+
+// ── GLOW BEHIND NEEDLE ───────────────────────────────────────
+const glowGrad = ctx.createRadialGradient(R, R*0.45, 0, R, R*0.45, R*0.55);
+glowGrad.addColorStop(0, 'rgba(201,168,76,0.18)');
+glowGrad.addColorStop(1, 'rgba(201,168,76,0)');
+ctx.fillStyle = glowGrad;
+ctx.beginPath();
+ctx.arc(R, R, innerR, 0, Math.PI*2);
+ctx.fill();
+
+// ── COMPASS NEEDLE ───────────────────────────────────────────
+// Pointing UP (to Qibla)
+const needleTop = R * 0.15;
+const needleMid = R * 1.0;
+const needleBot = R * 1.38;
+const needleW   = R * 0.065;
+
+// Gold needle (top half)
+const nGrad = ctx.createLinearGradient(R-needleW, needleTop, R+needleW, needleTop);
+nGrad.addColorStop(0, '#ffe066');
+nGrad.addColorStop(0.5, '#C9A84C');
+nGrad.addColorStop(1, '#8a6020');
+
+ctx.beginPath();
+ctx.moveTo(R - needleW*0.6, needleMid);
+ctx.lineTo(R, needleTop);
+ctx.lineTo(R + needleW*0.6, needleMid);
+ctx.closePath();
+ctx.fillStyle = nGrad;
+ctx.shadowColor = 'rgba(201,168,76,0.6)';
+ctx.shadowBlur = 24;
+ctx.fill();
+ctx.shadowBlur = 0;
+
+// Tail (translucent)
+ctx.beginPath();
+ctx.moveTo(R - needleW*0.35, needleMid);
+ctx.lineTo(R, needleBot);
+ctx.lineTo(R + needleW*0.35, needleMid);
+ctx.closePath();
+ctx.fillStyle = 'rgba(201,168,76,0.2)';
+ctx.fill();
+
+// ── KAABA ICON AT TIP ────────────────────────────────────────
+const kW = 110, kH = 85, kX = R - kW/2, kY = needleTop - kH - 14;
+
+// Shadow
+ctx.shadowColor = 'rgba(201,168,76,0.5)';
+ctx.shadowBlur = 30;
+
+// Body
+const kGrad = ctx.createLinearGradient(kX, kY, kX, kY+kH);
+kGrad.addColorStop(0, '#1a1408');
+kGrad.addColorStop(1, '#0a0c10');
+ctx.fillStyle = kGrad;
+ctx.strokeStyle = '#C9A84C';
+ctx.lineWidth = 3;
+ctx.beginPath();
+ctx.roundRect(kX, kY, kW, kH, 5);
+ctx.fill();
+ctx.stroke();
+ctx.shadowBlur = 0;
+
+// Top band (Kiswa belt)
+ctx.fillStyle = '#1e1808';
+ctx.beginPath();
+ctx.roundRect(kX, kY, kW, kH*0.28, [5,5,0,0]);
+ctx.fill();
+
+// Gold band on top
+ctx.fillStyle = '#C9A84C';
+ctx.globalAlpha = 0.85;
+ctx.fillRect(kX+10, kY+10, kW-20, 8);
+ctx.globalAlpha = 1;
+
+// Door
+ctx.fillStyle = '#090909';
+ctx.strokeStyle = '#C9A84C';
+ctx.lineWidth = 2;
+ctx.beginPath();
+ctx.roundRect(kX+kW*0.32, kY+kH*0.42, kW*0.36, kH*0.52, 3);
+ctx.fill();
+ctx.stroke();
+
+// Star above Kaaba
+const starX = R, starY = kY - 32;
+const starR1 = 22, starR2 = 9, starN = 8;
+ctx.fillStyle = '#C9A84C';
+ctx.shadowColor = 'rgba(201,168,76,0.8)';
+ctx.shadowBlur = 20;
+ctx.beginPath();
+for (let i = 0; i < starN*2; i++) {
+  const r = i%2===0 ? starR1 : starR2;
+  const a = (i * Math.PI/starN) - Math.PI/2;
+  i===0 ? ctx.moveTo(starX+r*Math.cos(a), starY+r*Math.sin(a))
+        : ctx.lineTo(starX+r*Math.cos(a), starY+r*Math.sin(a));
+}
+ctx.closePath();
+ctx.fill();
+ctx.shadowBlur = 0;
+
+// ── CENTER HUB ───────────────────────────────────────────────
+// Outer gold ring
+ctx.beginPath();
+ctx.arc(R, R, R*0.055, 0, Math.PI*2);
+ctx.fillStyle = '#C9A84C';
+ctx.shadowColor = 'rgba(201,168,76,0.7)';
+ctx.shadowBlur = 20;
+ctx.fill();
+ctx.shadowBlur = 0;
+// Dark center
+ctx.beginPath();
+ctx.arc(R, R, R*0.030, 0, Math.PI*2);
+ctx.fillStyle = '#060f1c';
+ctx.fill();
+// Gold dot
+ctx.beginPath();
+ctx.arc(R, R, R*0.012, 0, Math.PI*2);
+ctx.fillStyle = '#C9A84C';
+ctx.globalAlpha = 0.8;
+ctx.fill();
+ctx.globalAlpha = 1;
+
+// ── CARDINAL N ───────────────────────────────────────────────
+ctx.font = `bold ${R*0.09}px Georgia, serif`;
+ctx.fillStyle = '#e05555';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.shadowColor = 'rgba(220,80,80,0.5)';
+ctx.shadowBlur = 10;
+ctx.fillText('N', R, R*0.14);
+ctx.shadowBlur = 0;
+
+// ── ARABIC TEXT ──────────────────────────────────────────────
+ctx.font = `bold ${R*0.075}px Georgia, serif`;
+ctx.fillStyle = 'rgba(201,168,76,0.7)';
+ctx.textAlign = 'center';
+ctx.textBaseline = 'middle';
+ctx.fillText('القبلة', R, R*1.82);
+
+// ── BORDER VIGNETTE ──────────────────────────────────────────
+const vign = ctx.createRadialGradient(R,R,R*0.6, R,R,R*1.1);
+vign.addColorStop(0, 'rgba(0,0,0,0)');
+vign.addColorStop(1, 'rgba(0,0,0,0.45)');
+ctx.fillStyle = vign;
+ctx.beginPath();
+ctx.roundRect(0,0,S,S, S*0.224);
+ctx.fill();
+
+// ── SMALL PREVIEWS ───────────────────────────────────────────
+[192,128,64].forEach(size => {
+  const previewCanvas = document.createElement('canvas');
+  previewCanvas.width = size; previewCanvas.height = size;
+  const pctx = previewCanvas.getContext('2d');
+  pctx.drawImage(C, 0,0, size, size);
+  previewCanvas.style.borderRadius = '22.4%';
+  previewCanvas.style.boxShadow = '0 4px 20px rgba(0,0,0,.7)';
+
+  const wrap = document.createElement('div');
+  const lbl = document.createElement('div');
+  lbl.className = 'preview';
+  lbl.textContent = `${size}×${size}`;
+  wrap.appendChild(previewCanvas);
+  wrap.appendChild(lbl);
+  document.getElementById('previews').appendChild(wrap);
+});
+
+// ── DOWNLOAD ─────────────────────────────────────────────────
+function download() {
+  const a = document.createElement('a');
+  a.download = 'icon-1024.png';
+  a.href = C.toDataURL('image/png');
+  a.click();
+}
+window.download = download;
+</script>
+</body>
+</html>
