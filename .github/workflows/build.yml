@@ -1,0 +1,50 @@
+name: Build Android APK
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Add icon files
+        run: |
+          mkdir -p app/src/main/res/drawable
+          cp icon-512.png app/src/main/res/drawable/splash.png
+          cp icon-512.png app/src/main/res/drawable/ic_notification_icon.png
+          cp icon-512.png app/src/main/res/drawable/shortcut_0.png
+          cp icon-512.png app/src/main/res/drawable/shortcut_1.png
+          mkdir -p app/src/main/res/mipmap-anydpi-v26
+          cp icon-512.png app/src/main/res/mipmap-anydpi-v26/ic_maskable.png
+
+      - name: Build APK
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --no-daemon --max-workers=2
+        env:
+          JAVA_TOOL_OPTIONS: "-Xmx1g"
+
+      - name: Sign APK
+        run: |
+          $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
+            --ks android.keystore \
+            --ks-key-alias Destro \
+            --ks-pass pass:Qibla2025! \
+            --key-pass pass:Qibla2025! \
+            --out app-signed.apk \
+            app/build/outputs/apk/release/app-release-unsigned.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: qibla-apk
+          path: |
+            app-signed.apk
+            app/build/outputs/bundle/release/*.aab
