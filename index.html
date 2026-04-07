@@ -593,7 +593,8 @@ smoothNeedle = lerpAngle(smoothNeedle, targetNeedle, SMOOTH);
       `rotate(${smoothHead}deg)`;
 
     // Smooth the needle to absolute Qibla bearing
-    smoothNeedle = lerpAngle(smoothNeedle, qibla, SMOOTH);
+   const needleTarget = ((qibla - rawHeading) % 360 + 360) % 360;
+smoothNeedle = lerpAngle(smoothNeedle, needleTarget, SMOOTH);
     document.getElementById('needle-svg').style.transform =
       `rotate(${smoothNeedle}deg)`;
 
@@ -602,8 +603,14 @@ smoothNeedle = lerpAngle(smoothNeedle, targetNeedle, SMOOTH);
       ? `${Math.round(rawHeading)}° ${card(rawHeading)}` : 'No sensor';
 
     // Alignment: phone facing within 5° of Qibla
-    const diff = Math.abs(((qibla - rawHeading + 180 + 360) % 360) - 180);
+   const diff = Math.abs(((qibla - rawHeading + 180 + 360) % 360) - 180);
 const aligned = diff < 5;
+
+if (diff < 3) {
+  document.getElementById('c-heading').textContent = hasCompass
+    ? `${Math.round(rawHeading)}° ${card(rawHeading)}`
+    : 'No sensor';
+} ;
 
 // STOP twitch when very close
 if (diff < 3) {
@@ -680,7 +687,7 @@ async function fetchPrayerTimes(lat, lng, method) {
   return data.data;
 }
 function renderPrayers() {
-  if (userLat === null || userLng === null) return;
+  if (userLat === null || userLng === null) return;;
   showPrayerLoading();
 
   fetchPrayerTimes(userLat, userLng, currentMethod)
