@@ -426,13 +426,24 @@ function switchTab(i) {
 //  GPS
 // ══════════════════════════════════════════════════════════════
 window.startGPS = function() {
-  showCompassLoading(); showPrayerLoading();
-  if (!navigator.geolocation) { gpsError('Geolocation not supported.'); return; }
-  if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-  watchId = navigator.geolocation.watchPosition(onPosition, onGPSError,
-    { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
-};
+  showCompassLoading();
+  showPrayerLoading();
 
+  if (!navigator.geolocation) {
+    gpsError('Geolocation not supported.');
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    onPosition,
+    onGPSError,
+    {
+      enableHighAccuracy: true,
+      maximumAge: 0,
+      timeout: 15000
+    }
+  );
+};
 function onPosition(pos) {
   const { latitude: lat, longitude: lng, accuracy: acc } = pos.coords;
   userLat = lat; userLng = lng;
