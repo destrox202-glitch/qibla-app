@@ -409,7 +409,7 @@ let smoothNeedle = 0;      // EMA-smoothed needle angle
 let lastAligned = false;
 let hasCompass  = false;
 let userLat = null, userLng = null, watchId = null;
-let currentMethod = 'Makkah';
+let currentMethod = 'MWL';
 let prayerTimer   = null;
 
 // ══════════════════════════════════════════════════════════════
@@ -570,7 +570,8 @@ function lerpAngle(a, b, t) {
 
     // Smooth the ring rotation (counter-rotate to heading)
     const ringTarget = -rawHeading;
-    smoothHead = lerpAngle(smoothHead, ringTarget, SMOOTH);
+    const targetNeedle = ((qibla - rawHeading) % 360 + 360) % 360;
+smoothNeedle = lerpAngle(smoothNeedle, targetNeedle, SMOOTH);
     document.getElementById('ring-svg').style.transform =
       `rotate(${smoothHead}deg)`;
 
@@ -585,8 +586,12 @@ function lerpAngle(a, b, t) {
 
     // Alignment: phone facing within 5° of Qibla
     const diff = Math.abs(((qibla - rawHeading + 180 + 360) % 360) - 180);
-    const aligned = diff < 5;
+const aligned = diff < 5;
 
+// STOP twitch when very close
+if (diff < 3) {
+  return;
+}
     if (aligned !== lastAligned) {
       lastAligned = aligned;
       document.getElementById('glow').classList.toggle('aligned', aligned);
@@ -644,7 +649,8 @@ async function fetchPrayerTimes(lat, lng, method) {
   const dd = now.getDate();
   const mm = now.getMonth() + 1;
   const yyyy = now.getFullYear();
-  const url = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${m}`;
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const url = https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${m}&timezonestring=${tz};
   const res  = await fetch(url);
   if (!res.ok) throw new Error(`API error ${res.status}`);
   const data = await res.json();
@@ -653,7 +659,7 @@ async function fetchPrayerTimes(lat, lng, method) {
 }
 
 function renderPrayers() {
-  if (userLat === null) return;
+  if (userLat === null || userLng === null) return;
   showPrayerLoading();
 
   fetchPrayerTimes(userLat, userLng, currentMethod)
