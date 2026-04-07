@@ -486,13 +486,19 @@ function showCompassError() {
   document.getElementById('compass-loading').style.display = 'none';
   document.getElementById('compass-error').style.display   = 'flex';
 }
+let compassStarted = false;
+
 function showCompassReady() {
   document.getElementById('compass-loading').style.display = 'none';
   document.getElementById('compass-error').style.display   = 'none';
   document.getElementById('cbox').style.display            = 'flex';
   document.getElementById('spill').style.display           = 'flex';
   document.getElementById('compass-cards').style.display   = 'grid';
-  setupCompass();
+
+  if (!compassStarted) {
+    setupCompass();
+    compassStarted = true;
+  }
 }
 function showPrayerLoading() {
   document.getElementById('prayer-loading').style.display  = 'flex';
@@ -655,20 +661,24 @@ function toDecimalH(t) {
 }
 
 async function fetchPrayerTimes(lat, lng, method) {
-  const m = METHOD_IDS[method] || 4;
+  const m = METHOD_IDS[method] || 3;
   const now = new Date();
   const dd = now.getDate();
   const mm = now.getMonth() + 1;
   const yyyy = now.getFullYear();
+
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-const url = https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${m}&timezonestring=${tz};
-  const res  = await fetch(url);
+
+  const url = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${m}&timezonestring=${encodeURIComponent(tz)}`;
+
+  const res = await fetch(url);
   if (!res.ok) throw new Error(`API error ${res.status}`);
+
   const data = await res.json();
   if (data.code !== 200) throw new Error('API returned error');
+
   return data.data;
 }
-
 function renderPrayers() {
   if (userLat === null || userLng === null) return;
   showPrayerLoading();
