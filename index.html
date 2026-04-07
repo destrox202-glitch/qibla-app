@@ -437,13 +437,10 @@ window.startGPS = function() {
   navigator.geolocation.getCurrentPosition(
     onPosition,
     onGPSError,
-    {
-      enableHighAccuracy: true,
-      maximumAge: 0,
-      timeout: 15000
-    }
+    { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
   );
 };
+
 function onPosition(pos) {
   const { latitude: lat, longitude: lng, accuracy: acc } = pos.coords;
   userLat = lat; userLng = lng;
@@ -494,7 +491,6 @@ function showCompassReady() {
   document.getElementById('cbox').style.display            = 'flex';
   document.getElementById('spill').style.display           = 'flex';
   document.getElementById('compass-cards').style.display   = 'grid';
-
   if (!compassStarted) {
     setupCompass();
     compassStarted = true;
@@ -515,24 +511,51 @@ function showPrayerError() {
 // ══════════════════════════════════════════════════════════════
 //  DEVICE ORIENTATION — EMA low-pass filter (no buffer lag)
 // ══════════════════════════════════════════════════════════════
-const EMA_ALPHA = 0.15; // Lower = smoother but slower. 0.15 is ideal.
+const EMA_ALPHA = 0.10;
+let headingSource = 'none';
+let orientationListenerAdded = false;
+
+function normalize360(v) {
+  return ((v % 360) + 360) % 360;
+}
+
+function extractHeading(e) {
+  if (typeof e.webkitCompassHeading === 'number') {
+    headingSource = 'webkit';
+    return normalize360(e.webkitCompassHeading);
+  }
+
+  const isAbsolute = e.type === 'deviceorientationabsolute' || e.absolute === true;
+  if (isAbsolute && typeof e.alpha === 'number') {
+    headingSource = 'absolute';
+    const screenAngle = (screen.orientation && typeof screen.orientation.angle === 'number')
+      ? screen.orientation.angle
+      : (typeof window.orientation === 'number' ? window.orientation : 0);
+    return normalize360(360 - e.alpha + screenAngle);
+  }
+
+  if (headingSource === 'none' && typeof e.alpha === 'number') {
+    const screenAngle = (screen.orientation && typeof screen.orientation.angle === 'number')
+      ? screen.orientation.angle
+      : (typeof window.orientation === 'number' ? window.orientation : 0);
+    return normalize360(360 - e.alpha + screenAngle);
+  }
+
+  return null;
+}
 
 function onOrientation(e) {
-  let h = null;
-  if (e.webkitCompassHeading != null) {
-    h = e.webkitCompassHeading; // iOS
-  } else if (e.alpha != null) {
-    h = (360 - e.alpha) % 360;  // Android
-  }
+  const h = extractHeading(e);
   if (h == null) return;
 
-  // EMA on circular values to avoid 0/360 jump
   const prev = rawHeading;
   let diff = h - prev;
   if (diff >  180) diff -= 360;
   if (diff < -180) diff += 360;
-  rawHeading = prev + EMA_ALPHA * diff;
-  rawHeading = ((rawHeading % 360) + 360) % 360;
+
+  if (Math.abs(diff) < 0.5) return;
+
+  rawHeading = normalize360(prev + EMA_ALPHA * diff);
 
   if (!hasCompass) {
     hasCompass = true;
@@ -542,24 +565,33 @@ function onOrientation(e) {
 }
 
 function setupCompass() {
+  if (orientationListenerAdded) return;
+
   if (typeof DeviceOrientationEvent === 'undefined') {
-    document.getElementById('nosensor').style.display = 'block'; return;
+    document.getElementById('nosensor').style.display = 'block';
+    return;
   }
+
   if (typeof DeviceOrientationEvent.requestPermission === 'function') {
     document.getElementById('iosbtn').style.display   = 'block';
     document.getElementById('nosensor').style.display = 'block';
-  } else {
-    window.addEventListener('deviceorientationabsolute', onOrientation, true);
-    window.addEventListener('deviceorientation', onOrientation, true);
+    return;
   }
+
+  window.addEventListener('deviceorientationabsolute', onOrientation, true);
+  window.addEventListener('deviceorientation', onOrientation, true);
+  orientationListenerAdded = true;
 }
 
 window.enableIOSCompass = async function() {
   try {
     const r = await DeviceOrientationEvent.requestPermission();
     if (r === 'granted') {
-      window.addEventListener('deviceorientationabsolute', onOrientation, true);
-      window.addEventListener('deviceorientation', onOrientation, true);
+      if (!orientationListenerAdded) {
+        window.addEventListener('deviceorientationabsolute', onOrientation, true);
+        window.addEventListener('deviceorientation', onOrientation, true);
+        orientationListenerAdded = true;
+      }
       document.getElementById('iosbtn').style.display   = 'none';
       document.getElementById('nosensor').style.display = 'none';
     }
@@ -587,14 +619,13 @@ function lerpAngle(a, b, t) {
 
     // Smooth the ring rotation (counter-rotate to heading)
     const ringTarget = -rawHeading;
-    const targetNeedle = ((qibla - rawHeading) % 360 + 360) % 360;
-smoothNeedle = lerpAngle(smoothNeedle, targetNeedle, SMOOTH);
+    smoothHead = lerpAngle(smoothHead, ringTarget, SMOOTH);
     document.getElementById('ring-svg').style.transform =
       `rotate(${smoothHead}deg)`;
 
-    // Smooth the needle to absolute Qibla bearing
-   const needleTarget = ((qibla - rawHeading) % 360 + 360) % 360;
-smoothNeedle = lerpAngle(smoothNeedle, needleTarget, SMOOTH);
+    // Smooth the needle relative to the phone heading
+    const needleTarget = normalize360(qibla - rawHeading);
+    smoothNeedle = lerpAngle(smoothNeedle, needleTarget, SMOOTH);
     document.getElementById('needle-svg').style.transform =
       `rotate(${smoothNeedle}deg)`;
 
@@ -603,19 +634,9 @@ smoothNeedle = lerpAngle(smoothNeedle, needleTarget, SMOOTH);
       ? `${Math.round(rawHeading)}° ${card(rawHeading)}` : 'No sensor';
 
     // Alignment: phone facing within 5° of Qibla
-   const diff = Math.abs(((qibla - rawHeading + 180 + 360) % 360) - 180);
-const aligned = diff < 5;
+    const diff = Math.abs(((qibla - rawHeading + 180 + 360) % 360) - 180);
+    const aligned = diff < 5;
 
-if (diff < 3) {
-  document.getElementById('c-heading').textContent = hasCompass
-    ? `${Math.round(rawHeading)}° ${card(rawHeading)}`
-    : 'No sensor';
-} ;
-
-// STOP twitch when very close
-if (diff < 3) {
-  return;
-}
     if (aligned !== lastAligned) {
       lastAligned = aligned;
       document.getElementById('glow').classList.toggle('aligned', aligned);
@@ -673,21 +694,17 @@ async function fetchPrayerTimes(lat, lng, method) {
   const dd = now.getDate();
   const mm = now.getMonth() + 1;
   const yyyy = now.getFullYear();
-
   const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
-  const url = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${m}&timezonestring=${encodeURIComponent(tz)}`;
-
-  const res = await fetch(url);
+  const url = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${m}&timezonestring=${encodeURIComponent(tz)}&tune=0,0,0,0,0,0,0,0,0`;
+  const res  = await fetch(url, { cache: 'no-store' });
   if (!res.ok) throw new Error(`API error ${res.status}`);
-
   const data = await res.json();
   if (data.code !== 200) throw new Error('API returned error');
-
   return data.data;
 }
+
 function renderPrayers() {
-  if (userLat === null || userLng === null) return;;
+  if (userLat === null || userLng === null) return;
   showPrayerLoading();
 
   fetchPrayerTimes(userLat, userLng, currentMethod)
