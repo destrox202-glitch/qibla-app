@@ -740,7 +740,7 @@ function onOrientation(e) {
 
   // Keep last 5 readings and average them
   headingBuffer.push(h);
-  if (headingBuffer.length > 10) headingBuffer.shift();
+  if (headingBuffer.length > 15) headingBuffer.shift();
 
   // Circular mean to handle 0/360 wraparound
   let sinSum = 0, cosSum = 0;
@@ -783,14 +783,31 @@ window.enableIOSCompass = async function() {
 // ══════════════════════════════════════════════════════════════
 //  ANIMATION LOOP
 // ══════════════════════════════════════════════════════════════
+let smoothedHeading = 0;
+let smoothedQibla   = 0;
+
 (function tick() {
   if (qibla !== null) {
-    const target = (qibla - heading + 360) % 360;
-    dispAngle = lerp(dispAngle, target, 0.02);
-    document.getElementById('needle-svg').style.transform = `rotate(${dispAngle}deg)`;
+
+    // Smooth heading (ring rotation)
+    smoothedHeading = lerp(smoothedHeading, heading, 0.06);
+
+    // Smooth qibla needle (absolute bearing)
+    smoothedQibla = lerp(smoothedQibla, qibla, 0.06);
+
+    // Ring rotates OPPOSITE to heading so N always points to real North
+    document.getElementById('ring-svg').style.transform =
+      `rotate(${-smoothedHeading}deg)`;
+
+    // Needle points to absolute Qibla bearing
+    document.getElementById('needle-svg').style.transform =
+      `rotate(${smoothedQibla}deg)`;
+
+    // Update heading card
     document.getElementById('c-heading').textContent = hasCompass
       ? `${Math.round(heading)}° ${card(heading)}` : 'No sensor';
 
+    // Alignment — compare phone heading to qibla bearing
     const diff = Math.abs(((qibla - heading + 180 + 360) % 360) - 180);
     const aligned = diff < 4;
     if (aligned !== lastAligned) {
@@ -798,9 +815,11 @@ window.enableIOSCompass = async function() {
       document.getElementById('glow').classList.toggle('aligned', aligned);
       document.getElementById('irborder').setAttribute('stroke',
         aligned ? 'rgba(201,168,76,.65)' : 'rgba(201,168,76,.15)');
-      document.getElementById('irborder').setAttribute('stroke-width', aligned ? '2.5' : '1');
+      document.getElementById('irborder').setAttribute('stroke-width',
+        aligned ? '2.5' : '1');
       const st = document.getElementById('stxt');
-      st.textContent = aligned ? '✦  Facing Qibla  ✦'
+      st.textContent = aligned
+        ? '✦  Facing Qibla  ✦'
         : (hasCompass ? 'Rotate toward Qibla' : 'Arrow shows Qibla from North');
       st.classList.toggle('aligned', aligned);
       if (aligned) firePulse();
@@ -808,6 +827,7 @@ window.enableIOSCompass = async function() {
   }
   requestAnimationFrame(tick);
 })();
+
 
 function firePulse() {
   const p = document.getElementById('pulse');
