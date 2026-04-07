@@ -8,23 +8,28 @@
 <meta name="apple-mobile-web-app-title" content="Qibla Compass"/>
 <meta name="mobile-web-app-capable" content="yes"/>
 <meta name="theme-color" content="#07101d"/>
-<meta name="description" content="Find Qibla direction and accurate prayer times using your live GPS. No ads, no account."/>
+<meta name="description" content="Find Qibla direction and accurate prayer times using your live GPS."/>
 <link rel="manifest" href="manifest.json"/>
 <link rel="apple-touch-icon" href="icon-512.png"/>
 <title>Qibla & Prayer Times</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
 html,body{
   height:100%;
   background:#07101d;
-  -webkit-background-color:#07101d;
   font-family:Georgia,'Times New Roman',serif;
   color:#e8d5a3;
   overflow:hidden;
   -webkit-tap-highlight-color:transparent;
   user-select:none;
 }
-#app{display:flex;flex-direction:column;height:100dvh;position:relative;overflow:hidden}
+
+#app{
+  display:flex;flex-direction:column;
+  height:100dvh;position:relative;overflow:hidden;
+  background:#07101d;
+}
 
 /* BG */
 #bgsvg{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.035;width:100%;height:100%}
@@ -37,9 +42,9 @@ html,body{
 #glow.aligned{background:radial-gradient(circle,rgba(201,168,76,.22) 0%,transparent 65%)}
 
 /* HEADER */
-#header{text-align:center;padding:26px 0 10px;position:relative;z-index:2;flex-shrink:0}
+#header{text-align:center;padding:22px 0 8px;position:relative;z-index:2;flex-shrink:0}
 .sub{font-size:9px;letter-spacing:6px;color:#C9A84C;text-transform:uppercase;opacity:.7;margin-bottom:5px}
-.arabic{font-size:28px;font-weight:700;letter-spacing:3px;color:#e8d5a3}
+.arabic{font-size:26px;font-weight:700;letter-spacing:3px;color:#e8d5a3}
 .tag{font-size:11px;color:rgba(201,168,76,.4);letter-spacing:2px;margin-top:2px}
 
 /* TAB BAR */
@@ -66,6 +71,7 @@ html,body{
 #scroll-area{
   flex:1;overflow-y:auto;overflow-x:hidden;
   position:relative;z-index:1;-webkit-overflow-scrolling:touch;
+  background:#07101d;
 }
 #scroll-area::-webkit-scrollbar{display:none}
 
@@ -84,11 +90,23 @@ html,body{
 .err-msg{font-size:12px;color:rgba(255,180,180,.7);line-height:1.8}
 .retry-btn{padding:12px 28px;border-radius:14px;background:linear-gradient(135deg,rgba(201,168,76,.22),rgba(201,168,76,.08));border:1px solid rgba(201,168,76,.4);color:#e8d5a3;font-size:13px;cursor:pointer;font-family:Georgia,serif;letter-spacing:1px}
 
-/* ══ COMPASS ══ */
-#cbox{position:relative;width:300px;height:300px;display:flex;align-items:center;justify-content:center;margin-top:14px}
-#ring-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
-#needle-svg{position:absolute;inset:0;width:100%;height:100%;will-change:transform}
-#ring-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;will-change:transform}
+/* COMPASS */
+#cbox{position:relative;width:290px;height:290px;display:flex;align-items:center;justify-content:center;margin-top:14px}
+
+/* Ring rotates opposite to heading - N always points to real North */
+#ring-svg{
+  position:absolute;inset:0;width:100%;height:100%;overflow:visible;
+  will-change:transform;
+  transform-origin:center center;
+}
+
+/* Needle always points to absolute Qibla bearing */
+#needle-svg{
+  position:absolute;inset:0;width:100%;height:100%;
+  will-change:transform;
+  transform-origin:center center;
+}
+
 #pulse{position:absolute;width:220px;height:220px;border-radius:50%;border:2px solid rgba(201,168,76,.85);pointer-events:none;opacity:0}
 #pulse.fire{animation:pulseRing 1.4s ease-out forwards}
 #spill{height:30px;display:flex;align-items:center;margin-top:10px}
@@ -103,7 +121,7 @@ html,body{
 .cl{font-size:9px;color:rgba(201,168,76,.43);letter-spacing:1.5px;text-transform:uppercase;margin-top:3px}
 #nosensor{display:none;margin:10px 20px 0;padding:10px 16px;border-radius:12px;background:rgba(201,168,76,.06);border:1px solid rgba(201,168,76,.18);color:rgba(201,168,76,.6);font-size:11px;line-height:1.7;max-width:360px;text-align:center}
 
-/* ══ PRAYER TIMES ══ */
+/* PRAYER TIMES */
 #prayer-header{width:100%;max-width:420px;padding:14px 20px 0;display:none;flex-direction:column;gap:10px}
 #date-bar{text-align:center;font-size:11px;color:rgba(201,168,76,.5);letter-spacing:1.5px;text-transform:uppercase}
 #hijri-bar{text-align:center;font-size:13px;color:rgba(201,168,76,.65);letter-spacing:.5px;margin-top:2px}
@@ -112,7 +130,6 @@ html,body{
 #method-sel{flex:1;background:transparent;border:none;outline:none;color:rgba(201,168,76,.75);font-size:12px;font-family:Georgia,serif;cursor:pointer}
 #method-sel option{background:#0d1e33;color:#e8d5a3}
 
-/* Next prayer */
 #next-banner{width:100%;max-width:420px;padding:10px 20px 0;display:none}
 #next-card{background:linear-gradient(135deg,rgba(201,168,76,.13),rgba(201,168,76,.04));border:1px solid rgba(201,168,76,.35);border-radius:16px;padding:16px 20px;display:flex;align-items:center;justify-content:space-between}
 .next-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:rgba(201,168,76,.5);margin-bottom:3px}
@@ -120,7 +137,6 @@ html,body{
 .next-time{font-size:26px;font-weight:700;color:#C9A84C;letter-spacing:1px;text-align:right}
 .next-in{font-size:10px;color:rgba(201,168,76,.5);text-align:right;margin-top:2px}
 
-/* Prayer list */
 #prayer-list{width:100%;max-width:420px;padding:10px 20px 0;display:none;flex-direction:column;gap:8px}
 .prayer-row{
   display:flex;align-items:center;
@@ -142,8 +158,7 @@ html,body{
 
 #loc-bar{width:100%;max-width:420px;padding:8px 20px 0;display:none;font-size:10px;color:rgba(201,168,76,.22);font-family:monospace;text-align:center}
 
-/* FOOTER */
-footer{text-align:center;padding:14px 20px 0;position:relative;z-index:1;flex-shrink:0}
+footer{text-align:center;padding:14px 20px 0;position:relative;z-index:1;flex-shrink:0;background:#07101d}
 .ft{font-size:9px;color:rgba(201,168,76,.18);letter-spacing:2px;text-transform:uppercase}
 .fs{font-size:11px;color:rgba(201,168,76,.13);letter-spacing:8px;margin-top:4px}
 
@@ -184,7 +199,7 @@ footer{text-align:center;padding:14px 20px 0;position:relative;z-index:1;flex-sh
 
 <div id="scroll-area">
 
-  <!-- ══ COMPASS PAGE ══ -->
+  <!-- COMPASS PAGE -->
   <div class="page active" id="page-compass">
     <div class="loading-box" id="compass-loading">
       <div class="spinner"></div>
@@ -199,7 +214,9 @@ footer{text-align:center;padding:14px 20px 0;position:relative;z-index:1;flex-sh
     </div>
 
     <div id="cbox" style="display:none">
-      <svg id="ring-svg" viewBox="0 0 300 300">
+
+      <!-- ROTATING RING: rotates opposite to heading so N always = real North -->
+      <svg id="ring-svg" viewBox="0 0 290 290">
         <defs>
           <radialGradient id="ibg" cx="50%" cy="50%">
             <stop offset="0%" stop-color="#0e1d30"/>
@@ -210,16 +227,19 @@ footer{text-align:center;padding:14px 20px 0;position:relative;z-index:1;flex-sh
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
-        <circle cx="150" cy="150" r="143" fill="none" stroke="#C9A84C" stroke-width="1" stroke-dasharray="3 9" opacity=".35"/>
+        <circle cx="145" cy="145" r="138" fill="none" stroke="#C9A84C" stroke-width="1" stroke-dasharray="3 9" opacity=".35"/>
         <g id="ticks"></g>
-        <text x="150" y="44"  text-anchor="middle" fill="#e05555"              font-size="13" font-family="Georgia,serif" font-weight="bold">N</text>
-        <text x="260" y="154" text-anchor="middle" fill="rgba(201,168,76,.65)" font-size="13" font-family="Georgia,serif" font-weight="bold">E</text>
-        <text x="150" y="264" text-anchor="middle" fill="rgba(201,168,76,.65)" font-size="13" font-family="Georgia,serif" font-weight="bold">S</text>
-        <text x="40"  y="154" text-anchor="middle" fill="rgba(201,168,76,.65)" font-size="13" font-family="Georgia,serif" font-weight="bold">W</text>
-        <circle cx="150" cy="150" r="105" fill="url(#ibg)"/>
-        <circle id="irborder" cx="150" cy="150" r="105" fill="none" stroke="rgba(201,168,76,.15)" stroke-width="1" style="transition:stroke .6s,stroke-width .6s"/>
+        <!-- Cardinal labels - rotate WITH ring so they point to real directions -->
+        <text x="145" y="20"  text-anchor="middle" fill="#e05555"              font-size="13" font-family="Georgia,serif" font-weight="bold">N</text>
+        <text x="270" y="149" text-anchor="middle" fill="rgba(201,168,76,.65)" font-size="13" font-family="Georgia,serif" font-weight="bold">E</text>
+        <text x="145" y="278" text-anchor="middle" fill="rgba(201,168,76,.65)" font-size="13" font-family="Georgia,serif" font-weight="bold">S</text>
+        <text x="20"  y="149" text-anchor="middle" fill="rgba(201,168,76,.65)" font-size="13" font-family="Georgia,serif" font-weight="bold">W</text>
+        <circle cx="145" cy="145" r="105" fill="url(#ibg)"/>
+        <circle id="irborder" cx="145" cy="145" r="105" fill="none" stroke="rgba(201,168,76,.15)" stroke-width="1" style="transition:stroke .6s,stroke-width .6s"/>
       </svg>
-      <svg id="needle-svg" viewBox="0 0 300 300">
+
+      <!-- NEEDLE: always points to absolute Qibla bearing -->
+      <svg id="needle-svg" viewBox="0 0 290 290">
         <defs>
           <linearGradient id="ng" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%"   stop-color="#ffe989"/>
@@ -236,10 +256,11 @@ footer{text-align:center;padding:14px 20px 0;position:relative;z-index:1;flex-sh
         </g>
         <polygon points="145,142 150,82 155,142" fill="url(#ng)" opacity=".95"/>
         <polygon points="147,158 150,218 153,158" fill="rgba(201,168,76,.2)"/>
-        <circle cx="150" cy="150" r="10" fill="#C9A84C" filter="url(#gf)"/>
-        <circle cx="150" cy="150" r="5.5" fill="#060d18"/>
-        <circle cx="150" cy="150" r="2.5" fill="#C9A84C" opacity=".7"/>
+        <circle cx="145" cy="145" r="10" fill="#C9A84C" filter="url(#gf)"/>
+        <circle cx="145" cy="145" r="5.5" fill="#060d18"/>
+        <circle cx="145" cy="145" r="2.5" fill="#C9A84C" opacity=".7"/>
       </svg>
+
       <div id="pulse"></div>
     </div>
 
@@ -255,18 +276,18 @@ footer{text-align:center;padding:14px 20px 0;position:relative;z-index:1;flex-sh
     <div id="nosensor">🧭 <strong style="color:rgba(201,168,76,.8)">Compass sensor not active.</strong><br/>Needle shows Qibla from North.<br/>On iPhone tap <strong>"Tap to Enable Compass"</strong>.</div>
   </div>
 
-  <!-- ══ PRAYER TIMES PAGE ══ -->
+  <!-- PRAYER TIMES PAGE -->
   <div class="page" id="page-prayer">
     <div class="loading-box" id="prayer-loading">
       <div class="spinner"></div>
-      <div class="load-title">Calculating prayer times…</div>
+      <div class="load-title">Loading prayer times…</div>
       <div class="load-sub">Using your live location.</div>
     </div>
     <div class="error-box" id="prayer-error">
       <div class="err-icon">🕌</div>
-      <div class="err-title">Location Unavailable</div>
+      <div class="err-title">Could Not Load Times</div>
       <div class="err-msg" id="prayer-err-msg"></div>
-      <button class="retry-btn" onclick="startGPS()">Try Again</button>
+      <button class="retry-btn" onclick="renderPrayers()">Try Again</button>
     </div>
 
     <div id="prayer-header">
@@ -315,97 +336,356 @@ footer{text-align:center;padding:14px 20px 0;position:relative;z-index:1;flex-sh
 
 <script>
 // ══════════════════════════════════════════════════════════════
-//  ACCURATE PRAYER TIME ENGINE
-//  Based on PrayTimes.org algorithm (praytimes.js) — iterative
-//  sun-position method, matches Google / Islamic Finder results.
+//  CONSTANTS
 // ══════════════════════════════════════════════════════════════
+const KAABA = { lat: 21.3891, lng: 39.8579 };
+const D2R = Math.PI / 180, R2D = 180 / Math.PI;
 
 // ══════════════════════════════════════════════════════════════
-//  PRAYER TIMES — Aladhan.com API (most accurate globally)
+//  PRAYER METADATA
 // ══════════════════════════════════════════════════════════════
+const PRAYERS = [
+  { key:'Fajr',    name:'Fajr',    arabic:'الفجر',  icon:'🌙' },
+  { key:'Sunrise', name:'Sunrise', arabic:'الشروق', icon:'🌅' },
+  { key:'Dhuhr',   name:'Dhuhr',   arabic:'الظهر',  icon:'☀️' },
+  { key:'Asr',     name:'Asr',     arabic:'العصر',  icon:'🌤️' },
+  { key:'Maghrib', name:'Maghrib', arabic:'المغرب', icon:'🌇' },
+  { key:'Isha',    name:'Isha',    arabic:'العشاء',  icon:'🌑' },
+];
 
-async function fetchPrayerTimes(lat, lng, method) {
-  const methodMap = {
-    'MWL':     3,
-    'ISNA':    2,
-    'Egypt':   5,
-    'Makkah':  4,
-    'Karachi': 1,
-    'Tehran':  7,
-    'Jafari':  0,
-  };
-  const m = methodMap[method] || 4;
-  const date = new Date();
-  const dateStr = `${date.getDate()}-${date.getMonth()+1}-${date.getFullYear()}`;
-  const url = `https://api.aladhan.com/v1/timings/${dateStr}?latitude=${lat}&longitude=${lng}&method=${m}`;
-
-  const res  = await fetch(url);
-  const data = await res.json();
-  return data.data;
+// ══════════════════════════════════════════════════════════════
+//  QIBLA MATH
+// ══════════════════════════════════════════════════════════════
+function calcQibla(lat, lng) {
+  const f1 = lat*D2R, f2 = KAABA.lat*D2R, dl = (KAABA.lng - lng)*D2R;
+  return (Math.atan2(
+    Math.sin(dl)*Math.cos(f2),
+    Math.cos(f1)*Math.sin(f2) - Math.sin(f1)*Math.cos(f2)*Math.cos(dl)
+  ) * R2D + 360) % 360;
 }
 
-function renderPrayers() {
-  if (userLat === null) return;
+function calcDist(lat, lng) {
+  const R = 6371;
+  const dLa = (KAABA.lat - lat)*D2R, dLo = (KAABA.lng - lng)*D2R;
+  const a = Math.sin(dLa/2)**2 + Math.cos(lat*D2R)*Math.cos(KAABA.lat*D2R)*Math.sin(dLo/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+}
 
+function card(d) {
+  return ["N","NE","E","SE","S","SW","W","NW"][Math.round(((d%360)+360)%360/45)%8];
+}
+
+function fmtDist(km) {
+  return km >= 1000 ? `${(km/1e3).toFixed(1)}k km` : `${Math.round(km)} km`;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  BUILD COMPASS TICKS
+// ══════════════════════════════════════════════════════════════
+(()=>{
+  const g = document.getElementById('ticks');
+  const NS = 'http://www.w3.org/2000/svg';
+  for (let i = 0; i < 72; i++) {
+    const a = i * 5 * D2R, maj = i%9===0;
+    const r1 = 131, r2 = maj ? 117 : 124;
+    const ln = document.createElementNS(NS, 'line');
+    ln.setAttribute('x1', 145 + r1*Math.sin(a));
+    ln.setAttribute('y1', 145 - r1*Math.cos(a));
+    ln.setAttribute('x2', 145 + r2*Math.sin(a));
+    ln.setAttribute('y2', 145 - r2*Math.cos(a));
+    ln.setAttribute('stroke', maj ? '#C9A84C' : 'rgba(201,168,76,.22)');
+    ln.setAttribute('stroke-width', maj ? '1.5' : '0.7');
+    g.appendChild(ln);
+  }
+})();
+
+// ══════════════════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════════════════
+let qibla      = null;
+let rawHeading = 0;        // latest raw heading from sensor
+let smoothHead = 0;        // EMA-smoothed heading for ring
+let smoothNeedle = 0;      // EMA-smoothed needle angle
+let lastAligned = false;
+let hasCompass  = false;
+let userLat = null, userLng = null, watchId = null;
+let currentMethod = 'Makkah';
+let prayerTimer   = null;
+
+// ══════════════════════════════════════════════════════════════
+//  TABS
+// ══════════════════════════════════════════════════════════════
+function switchTab(i) {
+  document.querySelectorAll('.tab').forEach((t,j) => t.classList.toggle('active', j===i));
+  document.querySelectorAll('.page').forEach((p,j) => p.classList.toggle('active', j===i));
+  document.getElementById('tab-indicator').style.left = (i*50) + '%';
+  if (i===1) document.getElementById('scroll-area').scrollTop = 0;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  GPS
+// ══════════════════════════════════════════════════════════════
+window.startGPS = function() {
+  showCompassLoading(); showPrayerLoading();
+  if (!navigator.geolocation) { gpsError('Geolocation not supported.'); return; }
+  if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+  watchId = navigator.geolocation.watchPosition(onPosition, onGPSError,
+    { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 });
+};
+
+function onPosition(pos) {
+  const { latitude: lat, longitude: lng, accuracy: acc } = pos.coords;
+  userLat = lat; userLng = lng;
+
+  qibla = calcQibla(lat, lng);
+  document.getElementById('c-qibla').textContent = `${Math.round(qibla)}° ${card(qibla)}`;
+  document.getElementById('c-dist').textContent  = fmtDist(calcDist(lat, lng));
+  document.getElementById('c-acc').textContent   = `±${Math.round(acc)} m`;
+  showCompassReady();
+  renderPrayers();
+
+  const lb = document.getElementById('loc-bar');
+  lb.style.display = 'block';
+  lb.textContent = `${lat.toFixed(4)}°  ${lng.toFixed(4)}°  ·  ±${Math.round(acc)}m`;
+}
+
+function onGPSError(err) {
+  const m = {
+    1: 'Location permission denied. Please allow in browser settings.',
+    2: 'Could not determine position.',
+    3: 'Location request timed out.'
+  };
+  gpsError(m[err.code] || 'Unknown GPS error.');
+}
+
+function gpsError(msg) {
+  document.getElementById('compass-err-msg').textContent = msg;
+  document.getElementById('prayer-err-msg').textContent  = msg;
+  showCompassError(); showPrayerError();
+}
+
+function showCompassLoading() {
+  document.getElementById('compass-loading').style.display = 'flex';
+  document.getElementById('compass-error').style.display   = 'none';
+  document.getElementById('cbox').style.display            = 'none';
+  document.getElementById('spill').style.display           = 'none';
+  document.getElementById('compass-cards').style.display   = 'none';
+}
+function showCompassError() {
+  document.getElementById('compass-loading').style.display = 'none';
+  document.getElementById('compass-error').style.display   = 'flex';
+}
+function showCompassReady() {
+  document.getElementById('compass-loading').style.display = 'none';
+  document.getElementById('compass-error').style.display   = 'none';
+  document.getElementById('cbox').style.display            = 'flex';
+  document.getElementById('spill').style.display           = 'flex';
+  document.getElementById('compass-cards').style.display   = 'grid';
+  setupCompass();
+}
+function showPrayerLoading() {
   document.getElementById('prayer-loading').style.display  = 'flex';
   document.getElementById('prayer-error').style.display    = 'none';
   document.getElementById('prayer-header').style.display   = 'none';
   document.getElementById('next-banner').style.display     = 'none';
   document.getElementById('prayer-list').style.display     = 'none';
+}
+function showPrayerError() {
+  document.getElementById('prayer-loading').style.display = 'none';
+  document.getElementById('prayer-error').style.display   = 'flex';
+}
+
+// ══════════════════════════════════════════════════════════════
+//  DEVICE ORIENTATION — EMA low-pass filter (no buffer lag)
+// ══════════════════════════════════════════════════════════════
+const EMA_ALPHA = 0.15; // Lower = smoother but slower. 0.15 is ideal.
+
+function onOrientation(e) {
+  let h = null;
+  if (e.webkitCompassHeading != null) {
+    h = e.webkitCompassHeading; // iOS
+  } else if (e.alpha != null) {
+    h = (360 - e.alpha) % 360;  // Android
+  }
+  if (h == null) return;
+
+  // EMA on circular values to avoid 0/360 jump
+  const prev = rawHeading;
+  let diff = h - prev;
+  if (diff >  180) diff -= 360;
+  if (diff < -180) diff += 360;
+  rawHeading = prev + EMA_ALPHA * diff;
+  rawHeading = ((rawHeading % 360) + 360) % 360;
+
+  if (!hasCompass) {
+    hasCompass = true;
+    document.getElementById('nosensor').style.display = 'none';
+    document.getElementById('iosbtn').style.display   = 'none';
+  }
+}
+
+function setupCompass() {
+  if (typeof DeviceOrientationEvent === 'undefined') {
+    document.getElementById('nosensor').style.display = 'block'; return;
+  }
+  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
+    document.getElementById('iosbtn').style.display   = 'block';
+    document.getElementById('nosensor').style.display = 'block';
+  } else {
+    window.addEventListener('deviceorientationabsolute', onOrientation, true);
+    window.addEventListener('deviceorientation', onOrientation, true);
+  }
+}
+
+window.enableIOSCompass = async function() {
+  try {
+    const r = await DeviceOrientationEvent.requestPermission();
+    if (r === 'granted') {
+      window.addEventListener('deviceorientationabsolute', onOrientation, true);
+      window.addEventListener('deviceorientation', onOrientation, true);
+      document.getElementById('iosbtn').style.display   = 'none';
+      document.getElementById('nosensor').style.display = 'none';
+    }
+  } catch(e) { console.warn(e); }
+};
+
+// ══════════════════════════════════════════════════════════════
+//  ANIMATION LOOP
+//
+//  DESIGN:
+//  - Ring rotates OPPOSITE to phone heading → N always = real North
+//  - Needle points to ABSOLUTE Qibla bearing
+//  - When phone faces Makkah → needle points up = "Facing Qibla"
+// ══════════════════════════════════════════════════════════════
+const SMOOTH = 0.12; // Animation smoothing factor
+
+function lerpAngle(a, b, t) {
+  let d = ((b - a + 540) % 360) - 180;
+  if (Math.abs(d) < 0.3) return b;
+  return a + d * t;
+}
+
+(function tick() {
+  if (qibla !== null) {
+
+    // Smooth the ring rotation (counter-rotate to heading)
+    const ringTarget = -rawHeading;
+    smoothHead = lerpAngle(smoothHead, ringTarget, SMOOTH);
+    document.getElementById('ring-svg').style.transform =
+      `rotate(${smoothHead}deg)`;
+
+    // Smooth the needle to absolute Qibla bearing
+    smoothNeedle = lerpAngle(smoothNeedle, qibla, SMOOTH);
+    document.getElementById('needle-svg').style.transform =
+      `rotate(${smoothNeedle}deg)`;
+
+    // Update heading card
+    document.getElementById('c-heading').textContent = hasCompass
+      ? `${Math.round(rawHeading)}° ${card(rawHeading)}` : 'No sensor';
+
+    // Alignment: phone facing within 5° of Qibla
+    const diff = Math.abs(((qibla - rawHeading + 180 + 360) % 360) - 180);
+    const aligned = diff < 5;
+
+    if (aligned !== lastAligned) {
+      lastAligned = aligned;
+      document.getElementById('glow').classList.toggle('aligned', aligned);
+      document.getElementById('irborder').setAttribute('stroke',
+        aligned ? 'rgba(201,168,76,.65)' : 'rgba(201,168,76,.15)');
+      document.getElementById('irborder').setAttribute('stroke-width',
+        aligned ? '2.5' : '1');
+      const st = document.getElementById('stxt');
+      st.textContent = aligned
+        ? '✦  Facing Qibla  ✦'
+        : (hasCompass ? 'Rotate toward Qibla' : 'Arrow shows Qibla from North');
+      st.classList.toggle('aligned', aligned);
+      if (aligned) firePulse();
+    }
+  }
+  requestAnimationFrame(tick);
+})();
+
+function firePulse() {
+  const p = document.getElementById('pulse');
+  p.classList.remove('fire'); void p.offsetWidth; p.classList.add('fire');
+  p.addEventListener('animationend', () => p.classList.remove('fire'), { once: true });
+}
+
+// ══════════════════════════════════════════════════════════════
+//  PRAYER TIMES — Aladhan API (accurate globally)
+// ══════════════════════════════════════════════════════════════
+const METHOD_IDS = {
+  'MWL': 3, 'ISNA': 2, 'Egypt': 5,
+  'Makkah': 4, 'Karachi': 1, 'Tehran': 7, 'Jafari': 0
+};
+
+function fmt12(t) {
+  if (!t) return '—';
+  // Strip seconds if present e.g. "05:30 (KSA)" → "05:30"
+  const clean = t.split(' ')[0].split('(')[0].trim();
+  const [h, m] = clean.split(':').map(Number);
+  if (isNaN(h) || isNaN(m)) return t;
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hr = h % 12 || 12;
+  return `${hr}:${m.toString().padStart(2,'0')} ${ampm}`;
+}
+
+function toDecimalH(t) {
+  if (!t) return 0;
+  const clean = t.split(' ')[0].split('(')[0].trim();
+  const [h, m] = clean.split(':').map(Number);
+  if (isNaN(h) || isNaN(m)) return 0;
+  return h + m/60;
+}
+
+async function fetchPrayerTimes(lat, lng, method) {
+  const m = METHOD_IDS[method] || 4;
+  const now = new Date();
+  const dd = now.getDate();
+  const mm = now.getMonth() + 1;
+  const yyyy = now.getFullYear();
+  const url = `https://api.aladhan.com/v1/timings/${dd}-${mm}-${yyyy}?latitude=${lat}&longitude=${lng}&method=${m}`;
+  const res  = await fetch(url);
+  if (!res.ok) throw new Error(`API error ${res.status}`);
+  const data = await res.json();
+  if (data.code !== 200) throw new Error('API returned error');
+  return data.data;
+}
+
+function renderPrayers() {
+  if (userLat === null) return;
+  showPrayerLoading();
 
   fetchPrayerTimes(userLat, userLng, currentMethod)
     .then(data => {
-      const timings = data.timings;
+      const timings  = data.timings;
       const dateInfo = data.date;
 
-      // Show sections
-      document.getElementById('prayer-loading').style.display  = 'none';
-      document.getElementById('prayer-header').style.display   = 'flex';
-      document.getElementById('next-banner').style.display     = 'block';
-      document.getElementById('prayer-list').style.display     = 'flex';
+      document.getElementById('prayer-loading').style.display = 'none';
+      document.getElementById('prayer-error').style.display   = 'none';
+      document.getElementById('prayer-header').style.display  = 'flex';
+      document.getElementById('next-banner').style.display    = 'block';
+      document.getElementById('prayer-list').style.display    = 'flex';
 
-      // Date display
-      document.getElementById('date-bar').textContent =
-        dateInfo.readable ? dateInfo.readable.toUpperCase() : '';
-      document.getElementById('hijri-bar').textContent =
-        `${dateInfo.hijri.day} ${dateInfo.hijri.month.en} ${dateInfo.hijri.year} AH`;
-
-      // Parse time string "HH:MM" to decimal hours
-      function toDecimal(t) {
-        const [h, m] = t.split(':').map(Number);
-        return h + m/60;
-      }
-
-      // Convert "HH:MM" to 12-hour format
-      function fmt12(t) {
-        const [h, m] = t.split(':').map(Number);
-        const ampm = h >= 12 ? 'PM' : 'AM';
-        const hr = h % 12 || 12;
-        return `${hr}:${m.toString().padStart(2,'0')} ${ampm}`;
-      }
+      // Dates
+      try {
+        document.getElementById('date-bar').textContent =
+          dateInfo.readable ? dateInfo.readable.toUpperCase() : '';
+        document.getElementById('hijri-bar').textContent =
+          `${dateInfo.hijri.day} ${dateInfo.hijri.month.en} ${dateInfo.hijri.year} AH`;
+      } catch(e) {}
 
       const now  = new Date();
       const nowH = now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
 
-      const ordered = PRAYERS.map(p => {
-  const keyMap = {
-    'fajr': 'Fajr',
-    'sunrise': 'Sunrise',
-    'dhuhr': 'Dhuhr',
-    'asr': 'Asr',
-    'maghrib': 'Maghrib',
-    'isha': 'Isha'
-  };
-  const key = keyMap[p.key] || p.key;
-  const rawTime = timings[key] || '00:00';
-        return {
-          ...p,
-          h:   toDecimal(rawTime),
-          str: fmt12(rawTime),
-        };
-      });
+      // Build ordered list
+      const ordered = PRAYERS.map(p => ({
+        ...p,
+        str: fmt12(timings[p.key] || ''),
+        h:   toDecimalH(timings[p.key] || ''),
+      }));
 
-      // Find current and next prayer
+      // Find current and next
       let curIdx = -1;
       for (let i = ordered.length - 1; i >= 0; i--) {
         if (nowH >= ordered[i].h) { curIdx = i; break; }
@@ -416,20 +696,19 @@ function renderPrayers() {
       let diffH = ordered[nxtIdx].h - nowH;
       if (diffH < 0) diffH += 24;
       const diffMin = Math.round(diffH * 60);
-      const h = Math.floor(diffMin/60), m = diffMin % 60;
-      const countdown = h > 0 ? `in ${h}h ${m}m` : `in ${m} min`;
+      const hh = Math.floor(diffMin/60), mm2 = diffMin % 60;
+      const countdown = hh > 0 ? `in ${hh}h ${mm2}m` : `in ${mm2} min`;
 
       document.getElementById('next-name').textContent = ordered[nxtIdx].name;
       document.getElementById('next-time').textContent = ordered[nxtIdx].str;
       document.getElementById('next-in').textContent   = countdown;
 
-      // Build rows
+      // Rows
       const list = document.getElementById('prayer-list');
       list.innerHTML = '';
       ordered.forEach((p, i) => {
         const isCurrent = i === curIdx;
         const isPassed  = nowH > p.h && !isCurrent;
-
         const row = document.createElement('div');
         row.className = 'prayer-row'
           + (isCurrent ? ' current' : '')
@@ -456,7 +735,6 @@ function renderPrayers() {
         list.appendChild(row);
       });
 
-      // Refresh every minute
       clearTimeout(prayerTimer);
       prayerTimer = setTimeout(renderPrayers, 60000);
     })
@@ -465,7 +743,7 @@ function renderPrayers() {
       document.getElementById('prayer-loading').style.display = 'none';
       document.getElementById('prayer-error').style.display   = 'flex';
       document.getElementById('prayer-err-msg').textContent   =
-        'Could not load prayer times. Please check your internet connection.';
+        'Could not load prayer times. Check your internet connection.';
     });
 }
 
@@ -475,378 +753,14 @@ window.onMethodChange = function() {
 };
 
 // ══════════════════════════════════════════════════════════════
-//  HIJRI DATE (approximate)
-// ══════════════════════════════════════════════════════════════
-function toHijri(date) {
-  const jd = Math.floor(date.getTime()/86400000 + 2440587.5);
-  let l = jd - 1948440 + 10632;
-  const n = Math.floor((l-1)/10631);
-  l = l - 10631*n + 354;
-  const j = Math.floor((10985-l)/5316)*Math.floor(50*l/17719)
-          + Math.floor(l/5670)*Math.floor(43*l/15238);
-  l = l - Math.floor((30-j)/15)*Math.floor(17719*j/50)
-      - Math.floor(j/16)*Math.floor(15238*j/43) + 29;
-  const month = Math.floor(24*l/709);
-  const day   = l - Math.floor(709*month/24);
-  const year  = 30*n + j - 30;
-  const months = ['Muharram','Safar','Rabiʿ al-Awwal','Rabiʿ al-Thani',
-    'Jumada al-Awwal','Jumada al-Thani','Rajab','Shaʿban',
-    'Ramadan','Shawwal','Dhuʿl-Qaʿdah','Dhuʿl-Hijjah'];
-  return `${day} ${months[month-1]} ${year} AH`;
-}
-
-// ══════════════════════════════════════════════════════════════
-//  PRAYER METADATA
-// ══════════════════════════════════════════════════════════════
-const PRAYERS = [
-  { key:'fajr',    name:'Fajr',    arabic:'الفجر',  icon:'🌙' },
-  { key:'sunrise', name:'Sunrise', arabic:'الشروق', icon:'🌅' },
-  { key:'dhuhr',   name:'Dhuhr',   arabic:'الظهر',  icon:'☀️' },
-  { key:'asr',     name:'Asr',     arabic:'العصر',  icon:'🌤️' },
-  { key:'maghrib', name:'Maghrib', arabic:'المغرب', icon:'🌇' },
-  { key:'isha',    name:'Isha',    arabic:'العشاء',  icon:'🌑' },
-];
-
-// ══════════════════════════════════════════════════════════════
-//  QIBLA MATH
-// ══════════════════════════════════════════════════════════════
-const KAABA = { lat:21.3891, lng:39.8579 };
-const D2R = Math.PI/180, R2D = 180/Math.PI;
-
-function calcQibla(lat, lng) {
-  const f1=lat*D2R, f2=KAABA.lat*D2R, dl=(KAABA.lng-lng)*D2R;
-  return (Math.atan2(Math.sin(dl)*Math.cos(f2),
-    Math.cos(f1)*Math.sin(f2)-Math.sin(f1)*Math.cos(f2)*Math.cos(dl))*R2D+360)%360;
-}
-function calcDist(lat,lng) {
-  const R=6371, dLa=(KAABA.lat-lat)*D2R, dLo=(KAABA.lng-lng)*D2R;
-  const a=Math.sin(dLa/2)**2+Math.cos(lat*D2R)*Math.cos(KAABA.lat*D2R)*Math.sin(dLo/2)**2;
-  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-}
-function lerp(a, b, t) {
-  let d = ((b - a + 540) % 360) - 180;
-  if (Math.abs(d) < 0.5) return b;
-  return a + d * t;
-}
-function card(d){return["N","NE","E","SE","S","SW","W","NW"][Math.round(((d%360)+360)%360/45)%8]}
-function fmtDist(km){return km>=1000?`${(km/1e3).toFixed(1)}k km`:`${Math.round(km)} km`}
-
-// ══════════════════════════════════════════════════════════════
-//  BUILD TICKS
-// ══════════════════════════════════════════════════════════════
-(()=>{
-  const g=document.getElementById('ticks'), NS='http://www.w3.org/2000/svg';
-  for(let i=0;i<72;i++){
-    const a=i*5*D2R, maj=i%9===0, r1=136, r2=maj?121:129;
-    const ln=document.createElementNS(NS,'line');
-    ln.setAttribute('x1',150+r1*Math.sin(a)); ln.setAttribute('y1',150-r1*Math.cos(a));
-    ln.setAttribute('x2',150+r2*Math.sin(a)); ln.setAttribute('y2',150-r2*Math.cos(a));
-    ln.setAttribute('stroke',maj?'#C9A84C':'rgba(201,168,76,.22)');
-    ln.setAttribute('stroke-width',maj?'1.5':'0.7');
-    g.appendChild(ln);
-  }
-})();
-
-// ══════════════════════════════════════════════════════════════
-//  STATE
-// ══════════════════════════════════════════════════════════════
-let qibla=null, heading=0, dispAngle=0, lastAligned=false, hasCompass=false;
-let userLat=null, userLng=null, watchId=null;
-let currentMethod = 'Makkah';
-let prayerTimer   = null;
-
-// ══════════════════════════════════════════════════════════════
-//  TABS
-// ══════════════════════════════════════════════════════════════
-function switchTab(i){
-  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',j===i));
-  document.querySelectorAll('.page').forEach((p,j)=>p.classList.toggle('active',j===i));
-  document.getElementById('tab-indicator').style.left=(i*50)+'%';
-  if(i===1) document.getElementById('scroll-area').scrollTop=0;
-}
-
-// ══════════════════════════════════════════════════════════════
-//  GPS
-// ══════════════════════════════════════════════════════════════
-window.startGPS = function() {
-  showCompassLoading(); showPrayerLoading();
-  if (!navigator.geolocation) { gpsError('Geolocation not supported by this browser.'); return; }
-  if (watchId !== null) navigator.geolocation.clearWatch(watchId);
-  watchId = navigator.geolocation.watchPosition(onPosition, onGPSError,
-    { enableHighAccuracy:true, maximumAge:5000, timeout:15000 });
-};
-
-function onPosition(pos) {
-  const { latitude:lat, longitude:lng, accuracy:acc } = pos.coords;
-  userLat = lat; userLng = lng;
-
-  // Compass
-  qibla = calcQibla(lat, lng);
-  document.getElementById('c-qibla').textContent = `${Math.round(qibla)}° ${card(qibla)}`;
-  document.getElementById('c-dist').textContent  = fmtDist(calcDist(lat, lng));
-  document.getElementById('c-acc').textContent   = `±${Math.round(acc)} m`;
-  showCompassReady();
-
-  // Prayer times
-  renderPrayers();
-
-  // Location bar
-  const lb = document.getElementById('loc-bar');
-  lb.style.display = 'block';
-  lb.textContent = `${lat.toFixed(4)}°  ${lng.toFixed(4)}°  ·  ±${Math.round(acc)}m`;
-}
-
-function onGPSError(err) {
-  const m = {1:'Location permission denied. Please allow location in browser settings.',
-             2:'Position could not be determined. Check your GPS/network.',
-             3:'Location request timed out. Try again in the open.'};
-  gpsError(m[err.code]||'Unknown GPS error.');
-}
-
-function gpsError(msg) {
-  document.getElementById('compass-err-msg').textContent = msg;
-  document.getElementById('prayer-err-msg').textContent  = msg;
-  showCompassError(); showPrayerError();
-}
-
-function showCompassLoading(){
-  document.getElementById('compass-loading').style.display='flex';
-  document.getElementById('compass-error').style.display='none';
-  document.getElementById('cbox').style.display='none';
-  document.getElementById('spill').style.display='none';
-  document.getElementById('compass-cards').style.display='none';
-}
-function showCompassError(){
-  document.getElementById('compass-loading').style.display='none';
-  document.getElementById('compass-error').style.display='flex';
-}
-function showCompassReady(){
-  document.getElementById('compass-loading').style.display='none';
-  document.getElementById('compass-error').style.display='none';
-  document.getElementById('cbox').style.display='flex';
-  document.getElementById('spill').style.display='flex';
-  document.getElementById('compass-cards').style.display='grid';
-  setupCompass();
-}
-function showPrayerLoading(){
-  document.getElementById('prayer-loading').style.display='flex';
-  document.getElementById('prayer-error').style.display='none';
-  document.getElementById('prayer-header').style.display='none';
-  document.getElementById('next-banner').style.display='none';
-  document.getElementById('prayer-list').style.display='none';
-}
-function showPrayerError(){
-  document.getElementById('prayer-loading').style.display='none';
-  document.getElementById('prayer-error').style.display='flex';
-}
-
-// ══════════════════════════════════════════════════════════════
-//  RENDER PRAYER TIMES
-// ══════════════════════════════════════════════════════════════
-function renderPrayers() {
-  if (userLat === null) return;
-
-  const now    = new Date();
-  const tzOff = -now.getTimezoneOffset() / 60;
-console.log('DEBUG lat:', userLat, 'lng:', userLng, 'tz:', tzOff);
-const times  = PT.compute(now, userLat, userLng, tzOff, currentMethod);
-  // Show sections
-  document.getElementById('prayer-loading').style.display  = 'none';
-  document.getElementById('prayer-error').style.display    = 'none';
-  document.getElementById('prayer-header').style.display   = 'flex';
-  document.getElementById('next-banner').style.display     = 'block';
-  document.getElementById('prayer-list').style.display     = 'flex';
-
-  // Date display
-  document.getElementById('date-bar').textContent =
-    now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'}).toUpperCase();
-  document.getElementById('hijri-bar').textContent = toHijri(now);
-
-  // Current time as decimal hours (local)
-  const nowH = now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
-
-  // Find current prayer (last one whose time has passed)
-  // and next prayer
-  const ordered = PRAYERS.map(p => ({ ...p, h: times[p.key].h, str: times[p.key].str }));
-  let curIdx = -1;
-  for (let i = ordered.length - 1; i >= 0; i--) {
-    if (nowH >= ordered[i].h) { curIdx = i; break; }
-  }
-  const nxtIdx = (curIdx + 1) % ordered.length;
-
-  // Next prayer countdown
-  let diffH = ordered[nxtIdx].h - nowH;
-  if (diffH < 0) diffH += 24;
-  const diffMin = Math.round(diffH * 60);
-  const h = Math.floor(diffMin/60), m = diffMin%60;
-  const countdown = h > 0 ? `in ${h}h ${m}m` : `in ${m} min`;
-
-  document.getElementById('next-name').textContent = ordered[nxtIdx].name;
-  document.getElementById('next-time').textContent = ordered[nxtIdx].str;
-  document.getElementById('next-in').textContent   = countdown;
-
-  // Build rows
-  const list = document.getElementById('prayer-list');
-  list.innerHTML = '';
-  ordered.forEach((p, i) => {
-    const isCurrent = i === curIdx;
-    const isPassed  = nowH > p.h && !isCurrent;
-
-    const row = document.createElement('div');
-    row.className = 'prayer-row'
-      + (isCurrent ? ' current' : '')
-      + (isPassed  ? ' passed'  : '');
-    row.style.animationDelay = (i*0.06) + 's';
-
-    // Progress bar for current prayer
-    let bar = '';
-    if (isCurrent) {
-      const nextH = ordered[nxtIdx].h + (nxtIdx <= curIdx ? 24 : 0);
-      const pct = Math.min(100, Math.max(0, (nowH - p.h)/(nextH - p.h)*100));
-      bar = `<div class="p-progress" style="width:${pct.toFixed(1)}%"></div>`;
-    }
-
-    row.innerHTML = `
-      ${bar}
-      <div class="p-icon">${p.icon}</div>
-      <div class="p-info">
-        <div class="p-name">${p.name}</div>
-        <div class="p-arabic">${p.arabic}</div>
-      </div>
-      <div class="p-time${isPassed?' dim':''}">${p.str}</div>
-      ${isCurrent ? '<div class="p-dot"></div>' : ''}
-    `;
-    list.appendChild(row);
-  });
-
-  // Refresh every 30 seconds
-  clearTimeout(prayerTimer);
-  prayerTimer = setTimeout(renderPrayers, 30000);
-}
-
-window.onMethodChange = function() {
-  currentMethod = document.getElementById('method-sel').value;
-  renderPrayers();
-};
-
-// ══════════════════════════════════════════════════════════════
-//  COMPASS ORIENTATION
-// ══════════════════════════════════════════════════════════════
-let headingBuffer = [];
-function onOrientation(e) {
-  let h = null;
-  if (e.webkitCompassHeading != null) h = e.webkitCompassHeading;
-  else if (e.alpha != null) h = (360 - e.alpha) % 360;
-  if (h == null) return;
-
-  // Keep last 5 readings and average them
-  headingBuffer.push(h);
-  if (headingBuffer.length > 15) headingBuffer.shift();
-
-  // Circular mean to handle 0/360 wraparound
-  let sinSum = 0, cosSum = 0;
-  for (let r of headingBuffer) {
-    sinSum += Math.sin(r * Math.PI / 180);
-    cosSum += Math.cos(r * Math.PI / 180);
-  }
-  heading = (Math.atan2(sinSum, cosSum) * 180 / Math.PI + 360) % 360;
-
-  if (!hasCompass) {
-    hasCompass = true;
-    document.getElementById('nosensor').style.display = 'none';
-    document.getElementById('iosbtn').style.display   = 'none';
-  }
-}
-function setupCompass() {
-  if (typeof DeviceOrientationEvent === 'undefined') {
-    document.getElementById('nosensor').style.display = 'block'; return;
-  }
-  if (typeof DeviceOrientationEvent.requestPermission === 'function') {
-    document.getElementById('iosbtn').style.display   = 'block';
-    document.getElementById('nosensor').style.display = 'block';
-  } else {
-    window.addEventListener('deviceorientationabsolute', onOrientation, true);
-    window.addEventListener('deviceorientation', onOrientation, true);
-  }
-}
-window.enableIOSCompass = async function() {
-  try {
-    const r = await DeviceOrientationEvent.requestPermission();
-    if (r === 'granted') {
-      window.addEventListener('deviceorientationabsolute', onOrientation, true);
-      window.addEventListener('deviceorientation', onOrientation, true);
-      document.getElementById('iosbtn').style.display   = 'none';
-      document.getElementById('nosensor').style.display = 'none';
-    }
-  } catch(e) { console.warn(e); }
-};
-
-// ══════════════════════════════════════════════════════════════
-//  ANIMATION LOOP
-// ══════════════════════════════════════════════════════════════
-let smoothedHeading = 0;
-let smoothedQibla   = 0;
-
-(function tick() {
-  if (qibla !== null) {
-
-    // Smooth heading (ring rotation)
-    smoothedHeading = lerp(smoothedHeading, heading, 0.06);
-
-    // Smooth qibla needle (absolute bearing)
-    smoothedQibla = lerp(smoothedQibla, qibla, 0.06);
-
-    // Ring rotates OPPOSITE to heading so N always points to real North
-    document.getElementById('ring-svg').style.transform =
-      `rotate(${-smoothedHeading}deg)`;
-
-    // Needle points to absolute Qibla bearing
-    document.getElementById('needle-svg').style.transform =
-      `rotate(${smoothedQibla}deg)`;
-
-    // Update heading card
-    document.getElementById('c-heading').textContent = hasCompass
-      ? `${Math.round(heading)}° ${card(heading)}` : 'No sensor';
-
-    // Alignment — compare phone heading to qibla bearing
-    const diff = Math.abs(((qibla - heading + 180 + 360) % 360) - 180);
-    const aligned = diff < 4;
-    if (aligned !== lastAligned) {
-      lastAligned = aligned;
-      document.getElementById('glow').classList.toggle('aligned', aligned);
-      document.getElementById('irborder').setAttribute('stroke',
-        aligned ? 'rgba(201,168,76,.65)' : 'rgba(201,168,76,.15)');
-      document.getElementById('irborder').setAttribute('stroke-width',
-        aligned ? '2.5' : '1');
-      const st = document.getElementById('stxt');
-      st.textContent = aligned
-        ? '✦  Facing Qibla  ✦'
-        : (hasCompass ? 'Rotate toward Qibla' : 'Arrow shows Qibla from North');
-      st.classList.toggle('aligned', aligned);
-      if (aligned) firePulse();
-    }
-  }
-  requestAnimationFrame(tick);
-})();
-
-
-function firePulse() {
-  const p = document.getElementById('pulse');
-  p.classList.remove('fire'); void p.offsetWidth; p.classList.add('fire');
-  p.addEventListener('animationend', () => p.classList.remove('fire'), { once:true });
-}
-
-// ══════════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════════
 startGPS();
 
-// ── SERVICE WORKER REGISTRATION ──────────────────────────────
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js')
-      .then(reg => console.log('SW registered:', reg.scope))
-      .catch(err => console.log('SW registration failed:', err));
+      .catch(e => console.log('SW error:', e));
   });
 }
 </script>
