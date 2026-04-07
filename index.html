@@ -387,8 +387,16 @@ function renderPrayers() {
       const nowH = now.getHours() + now.getMinutes()/60 + now.getSeconds()/3600;
 
       const ordered = PRAYERS.map(p => {
-        const key = p.key.charAt(0).toUpperCase() + p.key.slice(1);
-        const rawTime = timings[key] || timings[p.key] || '00:00';
+  const keyMap = {
+    'fajr': 'Fajr',
+    'sunrise': 'Sunrise',
+    'dhuhr': 'Dhuhr',
+    'asr': 'Asr',
+    'maghrib': 'Maghrib',
+    'isha': 'Isha'
+  };
+  const key = keyMap[p.key] || p.key;
+  const rawTime = timings[key] || '00:00';
         return {
           ...p,
           h:   toDecimal(rawTime),
