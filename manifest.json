@@ -3,6 +3,7 @@
   "short_name": "Qibla Compass",
   "description": "Find Qibla direction and accurate prayer times using your live GPS. No ads, no account, no data collected.",
   "start_url": "/",
+  "id": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
@@ -12,40 +13,25 @@
   "categories": ["lifestyle", "navigation"],
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
     }
   ],
   "screenshots": [],
-  "shortcuts": [
-    {
-      "name": "Qibla Direction",
-      "short_name": "Qibla",
-      "description": "Open the Qibla compass",
-      "url": "/",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
-    },
-    {
-      "name": "Prayer Times",
-      "short_name": "Prayer Times",
-      "description": "View today's prayer times",
-      "url": "/",
-      "icons": [{ "src": "icon-192.png", "sizes": "192x192", "type": "image/png" }]
-    }
-  ],
+  "shortcuts": [],
   "prefer_related_applications": false
 }
