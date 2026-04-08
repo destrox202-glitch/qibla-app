@@ -227,10 +227,30 @@ footer{text-align:center;padding:14px 20px 0;position:relative;z-index:1;flex-sh
         <circle cx="145" cy="145" r="138" fill="none" stroke="#C9A84C" stroke-width="1" stroke-dasharray="3 9" opacity=".35"/>
         <g id="ticks"></g>
         <!-- Cardinal labels - rotate WITH ring so they point to real directions -->
-        <text x="145" y="32"  text-anchor="middle" fill="#e05555"              font-size="11" font-family="Georgia,serif" font-weight="bold">N</text>
-        <text x="258" y="149" text-anchor="middle" fill="rgba(201,168,76,.65)" font-size="11" font-family="Georgia,serif" font-weight="bold">E</text>
-        <text x="145" y="262" text-anchor="middle" fill="rgba(201,168,76,.65)" font-size="11" font-family="Georgia,serif" font-weight="bold">S</text>
-        <text x="32"  y="149" text-anchor="middle" fill="rgba(201,168,76,.65)" font-size="11" font-family="Georgia,serif" font-weight="bold">W</text>
+       <!-- N label with box -->
+<g transform="translate(133,22)">
+  <rect x="0" y="0" width="24" height="18" rx="4" fill="#0a1520" stroke="#C9A84C" stroke-width="1"/>
+  <text x="12" y="13" text-anchor="middle" fill="#e05555" font-size="11" font-family="Georgia,serif" font-weight="bold">N</text>
+</g>
+
+<!-- E label with box -->
+<g transform="translate(246,136)">
+  <rect x="0" y="0" width="24" height="18" rx="4" fill="#0a1520" stroke="#C9A84C" stroke-width="1"/>
+  <text x="12" y="13" text-anchor="middle" fill="rgba(201,168,76,.85)" font-size="11" font-family="Georgia,serif" font-weight="bold">E</text>
+</g>
+
+<!-- S label with box -->
+<g transform="translate(133,248)">
+  <rect x="0" y="0" width="24" height="18" rx="4" fill="#0a1520" stroke="#C9A84C" stroke-width="1"/>
+  <text x="12" y="13" text-anchor="middle" fill="rgba(201,168,76,.85)" font-size="11" font-family="Georgia,serif" font-weight="bold">S</text>
+</g>
+
+<!-- W label with box -->
+<g transform="translate(20,136)">
+  <rect x="0" y="0" width="24" height="18" rx="4" fill="#0a1520" stroke="#C9A84C" stroke-width="1"/>
+  <text x="12" y="13" text-anchor="middle" fill="rgba(201,168,76,.85)" font-size="11" font-family="Georgia,serif" font-weight="bold">W</text>
+</g>
+
 
         <circle cx="145" cy="145" r="105" fill="url(#ibg)"/>
         <circle id="irborder" cx="145" cy="145" r="105" fill="none" stroke="rgba(201,168,76,.15)" stroke-width="1" style="transition:stroke .6s,stroke-width .6s"/>
