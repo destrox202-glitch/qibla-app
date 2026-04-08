@@ -11,6 +11,40 @@
   "theme_color": "#07101d",
   "lang": "en",
   "categories": ["lifestyle", "navigation"],
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [],
+  "shortcuts": [],
+  "prefer_related_applications": false
+}{
+  "name": "Qibla Compass — القبلة والصلاة",
+  "short_name": "Qibla Compass",
+  "description": "Find Qibla direction and accurate prayer times using your live GPS. No ads, no account, no data collected.",
+  "start_url": "/",
+  "id": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#07101d",
+  "theme_color": "#07101d",
+  "lang": "en",
+  "categories": ["lifestyle", "navigation"],
 "icons": [
     {
       "src": "/icon-192.png",
