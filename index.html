@@ -632,24 +632,23 @@ function lerpAngle(a, b, t) {
   return a + d * t;
 }
 
-(function tick() {
+((function tick() {
   if (qibla !== null) {
 
-    // Smooth the ring rotation (counter-rotate to heading)
-    const ringTarget = -rawHeading;
-    smoothHead = lerpAngle(smoothHead, ringTarget, SMOOTH);
-    document.getElementById('ring-svg').style.transform =
-      `rotate(${smoothHead}deg)`;
+    // KEEP the compass face fixed on screen
+    document.getElementById('ring-svg').style.transform = `rotate(0deg)`;
 
-    // Smooth the needle relative to the phone heading
-    const needleTarget = normalize360(qibla - rawHeading);
+    // Rotate ONLY the needle relative to phone heading
+    const needleTarget = ((qibla - rawHeading) % 360 + 360) % 360;
     smoothNeedle = lerpAngle(smoothNeedle, needleTarget, SMOOTH);
+
     document.getElementById('needle-svg').style.transform =
       `rotate(${smoothNeedle}deg)`;
 
     // Update heading card
     document.getElementById('c-heading').textContent = hasCompass
-      ? `${Math.round(rawHeading)}° ${card(rawHeading)}` : 'No sensor';
+      ? `${Math.round(rawHeading)}° ${card(rawHeading)}`
+      : 'No sensor';
 
     // Alignment: phone facing within 5° of Qibla
     const diff = Math.abs(((qibla - rawHeading + 180 + 360) % 360) - 180);
@@ -658,18 +657,26 @@ function lerpAngle(a, b, t) {
     if (aligned !== lastAligned) {
       lastAligned = aligned;
       document.getElementById('glow').classList.toggle('aligned', aligned);
-      document.getElementById('irborder').setAttribute('stroke',
-        aligned ? 'rgba(201,168,76,.65)' : 'rgba(201,168,76,.15)');
-      document.getElementById('irborder').setAttribute('stroke-width',
-        aligned ? '2.5' : '1');
+      document.getElementById('irborder').setAttribute(
+        'stroke',
+        aligned ? 'rgba(201,168,76,.65)' : 'rgba(201,168,76,.15)'
+      );
+      document.getElementById('irborder').setAttribute(
+        'stroke-width',
+        aligned ? '2.5' : '1'
+      );
+
       const st = document.getElementById('stxt');
       st.textContent = aligned
         ? '✦  Facing Qibla  ✦'
         : (hasCompass ? 'Rotate toward Qibla' : 'Arrow shows Qibla from North');
+
       st.classList.toggle('aligned', aligned);
+
       if (aligned) firePulse();
     }
   }
+
   requestAnimationFrame(tick);
 })();
 
