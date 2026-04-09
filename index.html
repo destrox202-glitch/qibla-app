@@ -632,49 +632,61 @@ function lerpAngle(a, b, t) {
   return a + d * t;
 }
 
-((function tick() {
-  if (qibla !== null) {
+(function tick() {
+  try {
+    if (qibla !== null) {
+      const needleEl = document.getElementById('needle-svg');
+      const headingEl = document.getElementById('c-heading');
+      const glowEl = document.getElementById('glow');
+      const borderEl = document.getElementById('irborder');
+      const statusEl = document.getElementById('stxt');
 
-    // KEEP the compass face fixed on screen
-    document.getElementById('ring-svg').style.transform = `rotate(0deg)`;
+      // Rotate ONLY the needle
+      const needleTarget = ((qibla - rawHeading) % 360 + 360) % 360;
+      smoothNeedle = lerpAngle(smoothNeedle, needleTarget, SMOOTH);
 
-    // Rotate ONLY the needle relative to phone heading
-    const needleTarget = ((qibla - rawHeading) % 360 + 360) % 360;
-    smoothNeedle = lerpAngle(smoothNeedle, needleTarget, SMOOTH);
+      if (needleEl) {
+        needleEl.style.transform = `rotate(${smoothNeedle}deg)`;
+      }
 
-    document.getElementById('needle-svg').style.transform =
-      `rotate(${smoothNeedle}deg)`;
+      if (headingEl) {
+        headingEl.textContent = hasCompass
+          ? `${Math.round(rawHeading)}° ${card(rawHeading)}`
+          : 'No sensor';
+      }
 
-    // Update heading card
-    document.getElementById('c-heading').textContent = hasCompass
-      ? `${Math.round(rawHeading)}° ${card(rawHeading)}`
-      : 'No sensor';
+      const diff = Math.abs(((qibla - rawHeading + 180 + 360) % 360) - 180);
+      const aligned = diff < 5;
 
-    // Alignment: phone facing within 5° of Qibla
-    const diff = Math.abs(((qibla - rawHeading + 180 + 360) % 360) - 180);
-    const aligned = diff < 5;
+      if (aligned !== lastAligned) {
+        lastAligned = aligned;
 
-    if (aligned !== lastAligned) {
-      lastAligned = aligned;
-      document.getElementById('glow').classList.toggle('aligned', aligned);
-      document.getElementById('irborder').setAttribute(
-        'stroke',
-        aligned ? 'rgba(201,168,76,.65)' : 'rgba(201,168,76,.15)'
-      );
-      document.getElementById('irborder').setAttribute(
-        'stroke-width',
-        aligned ? '2.5' : '1'
-      );
+        if (glowEl) glowEl.classList.toggle('aligned', aligned);
 
-      const st = document.getElementById('stxt');
-      st.textContent = aligned
-        ? '✦  Facing Qibla  ✦'
-        : (hasCompass ? 'Rotate toward Qibla' : 'Arrow shows Qibla from North');
+        if (borderEl) {
+          borderEl.setAttribute(
+            'stroke',
+            aligned ? 'rgba(201,168,76,.65)' : 'rgba(201,168,76,.15)'
+          );
+          borderEl.setAttribute(
+            'stroke-width',
+            aligned ? '2.5' : '1'
+          );
+        }
 
-      st.classList.toggle('aligned', aligned);
+        if (statusEl) {
+          statusEl.textContent = aligned
+            ? '✦  Facing Qibla  ✦'
+            : (hasCompass ? 'Rotate toward Qibla' : 'Arrow shows Qibla from North');
 
-      if (aligned) firePulse();
+          statusEl.classList.toggle('aligned', aligned);
+        }
+
+        if (aligned) firePulse();
+      }
     }
+  } catch (e) {
+    console.error('Compass tick error:', e);
   }
 
   requestAnimationFrame(tick);
