@@ -635,33 +635,46 @@ function lerpAngle(a, b, t) {
 (function tick() {
   try {
     if (qibla !== null) {
+      const ringEl = document.getElementById('ring-svg');
       const needleEl = document.getElementById('needle-svg');
       const headingEl = document.getElementById('c-heading');
       const glowEl = document.getElementById('glow');
       const borderEl = document.getElementById('irborder');
       const statusEl = document.getElementById('stxt');
 
-      // Rotate ONLY the needle
-      const needleTarget = ((qibla - rawHeading) % 360 + 360) % 360;
-      smoothNeedle = lerpAngle(smoothNeedle, needleTarget, SMOOTH);
+      // Rotate the compass ring opposite to phone heading
+      // so N/E/S/W always stay in their TRUE real-world directions
+      const ringTarget = -rawHeading;
+      smoothHead = lerpAngle(smoothHead, ringTarget, SMOOTH);
+
+      if (ringEl) {
+        ringEl.style.transform = `rotate(${smoothHead}deg)`;
+      }
+
+      // Needle points to the ABSOLUTE Qibla bearing
+      smoothNeedle = lerpAngle(smoothNeedle, qibla, SMOOTH);
 
       if (needleEl) {
         needleEl.style.transform = `rotate(${smoothNeedle}deg)`;
       }
 
+      // Update heading text
       if (headingEl) {
         headingEl.textContent = hasCompass
           ? `${Math.round(rawHeading)}° ${card(rawHeading)}`
           : 'No sensor';
       }
 
+      // Detect if phone is facing Qibla
       const diff = Math.abs(((qibla - rawHeading + 180 + 360) % 360) - 180);
       const aligned = diff < 5;
 
       if (aligned !== lastAligned) {
         lastAligned = aligned;
 
-        if (glowEl) glowEl.classList.toggle('aligned', aligned);
+        if (glowEl) {
+          glowEl.classList.toggle('aligned', aligned);
+        }
 
         if (borderEl) {
           borderEl.setAttribute(
@@ -682,7 +695,9 @@ function lerpAngle(a, b, t) {
           statusEl.classList.toggle('aligned', aligned);
         }
 
-        if (aligned) firePulse();
+        if (aligned) {
+          firePulse();
+        }
       }
     }
   } catch (e) {
