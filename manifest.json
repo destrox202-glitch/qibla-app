@@ -1,69 +1,54 @@
 {
   "name": "Qibla Compass — القبلة والصلاة",
   "short_name": "Qibla Compass",
-  "description": "Find Qibla direction and accurate prayer times using your live GPS. No ads, no account, no data collected.",
-  "start_url": "/",
-  "id": "/",
-  "scope": "/",
+  "id": "/qibla-app/",
+  "start_url": "/qibla-app/",
+  "scope": "/qibla-app/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#07101d",
   "theme_color": "#07101d",
+  "description": "Find Qibla direction and accurate prayer times using your live GPS. No ads, no account, no data collected.",
   "lang": "en",
-  "categories": ["lifestyle", "navigation"],
+  "categories": ["lifestyle", "utilities"],
   "icons": [
     {
-      "src": "/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/jpeg"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/jpeg"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/jpeg",
-      "purpose": "maskable"
-    }
-  ],
-  "screenshots": [],
-  "shortcuts": [],
-  "prefer_related_applications": false
-}{
-  "name": "Qibla Compass — القبلة والصلاة",
-  "short_name": "Qibla Compass",
-  "description": "Find Qibla direction and accurate prayer times using your live GPS. No ads, no account, no data collected.",
-  "start_url": "/",
-  "id": "/",
-  "scope": "/",
-  "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#07101d",
-  "theme_color": "#07101d",
-  "lang": "en",
-  "categories": ["lifestyle", "navigation"],
-"icons": [
-    {
-      "src": "/icon-192.png",
+      "src": "/qibla-app/icon-192.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icon-512.png",
+      "src": "/qibla-app/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
-    },
-    {
-      "src": "/icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
     }
   ],
-  "screenshots": [],
-  "shortcuts": [],
-  "prefer_related_applications": false
+  "shortcuts": [
+    {
+      "name": "Qibla Direction",
+      "short_name": "Qibla",
+      "description": "Open the Qibla compass",
+      "url": "/qibla-app/#compass",
+      "icons": [
+        {
+          "src": "/qibla-app/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Prayer Times",
+      "short_name": "Prayer Times",
+      "description": "View today's prayer times",
+      "url": "/qibla-app/#prayer",
+      "icons": [
+        {
+          "src": "/qibla-app/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
 }
