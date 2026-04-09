@@ -642,8 +642,8 @@ function lerpAngle(a, b, t) {
       const borderEl = document.getElementById('irborder');
       const statusEl = document.getElementById('stxt');
 
-      // Rotate the compass ring opposite to phone heading
-      // so N/E/S/W always stay in their TRUE real-world directions
+      // Rotate the whole compass face opposite to phone heading
+      // so N/E/S/W stay in TRUE real-world directions
       const ringTarget = -rawHeading;
       smoothHead = lerpAngle(smoothHead, ringTarget, SMOOTH);
 
@@ -651,11 +651,9 @@ function lerpAngle(a, b, t) {
         ringEl.style.transform = `rotate(${smoothHead}deg)`;
       }
 
-      // Needle points to the ABSOLUTE Qibla bearing
-      smoothNeedle = lerpAngle(smoothNeedle, qibla, SMOOTH);
-
+      // Keep the phone pointer fixed upward on screen
       if (needleEl) {
-        needleEl.style.transform = `rotate(${smoothNeedle}deg)`;
+        needleEl.style.transform = `rotate(0deg)`;
       }
 
       // Update heading text
@@ -665,7 +663,7 @@ function lerpAngle(a, b, t) {
           : 'No sensor';
       }
 
-      // Detect if phone is facing Qibla
+      // Detect if phone heading is aligned with Qibla
       const diff = Math.abs(((qibla - rawHeading + 180 + 360) % 360) - 180);
       const aligned = diff < 5;
 
