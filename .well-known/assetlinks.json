@@ -3,6 +3,6 @@
   "target": {
     "namespace": "android_app",
     "package_name": "com.prayerqibla.app",
-    "sha256_cert_fingerprints": ["SHA256: 2A:FB:92:78:52:6A:96:ED:A8:62:B8:68:ED:79:78:85:F7:56:03:69:25:4D:7C:9F:16:A3:89:6D:30:74:A5:6C"]
+    "sha256_cert_fingerprints": ["SHA256: 88:B4:00:F7:87:0F:E6:38:51:0A:71:94:A5:CB:97:1A:CA:AF:74:A1:98:32:93:39:B8:02:B0:4C:4A:6B:57:08"]
   }
 }]
