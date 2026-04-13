@@ -1,9 +1,9 @@
 {
   "packageId": "com.prayerqibla.app",
-  "host": "legendary-mochi-d15d36.netlify.app",
+  "host": "destrox202-glitch.github.io",
   "name": "PRAYER QIBLA",
   "launcherName": "Qibla",
-  "displayMode": "standalone",
+  "displayMode": "fullscreen",
   "themeColor": "#07101D",
   "themeColorDark": "#07101D",
   "navigationColor": "#07101D",
@@ -12,13 +12,13 @@
   "navigationDividerColorDark": "#07101D",
   "backgroundColor": "#07101D",
   "enableNotifications": true,
-  "launchUrl": "https://legendary-mochi-d15d36.netlify.app/",
-  "iconUrl": "https://legendary-mochi-d15d36.netlify.app/icon-512.png",
-  "maskableIconUrl": "https://legendary-mochi-d15d36.netlify.app/icon-512.png",
+  "startUrl": "https://destrox202-glitch.github.io/",
+  "iconUrl": "https://destrox202-glitch.github.io/icon-512.png",
+  "maskableIconUrl": "https://destrox202-glitch.github.io/icon-512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
-    "path": "C:\\qibla-fresh\\qibla-app\\android.keystore",
-    "alias": "Destro"
+    "path": "C:\\qibla-build\\android.keystore",
+    "alias": "android"
   },
   "appVersionName": "1",
   "appVersionCode": 1,
@@ -26,18 +26,18 @@
     {
       "name": "Qibla Direction",
       "shortName": "Qibla",
-      "url": "https://legendary-mochi-d15d36.netlify.app/qibla-compass.html#compass",
-      "chosenIconUrl": "https://legendary-mochi-d15d36.netlify.app/icon-192.png"
+      "url": "https://destrox202-glitch.github.io/#compass",
+      "chosenIconUrl": "https://destrox202-glitch.github.io/icon-192.png"
     },
     {
       "name": "Prayer Times",
       "shortName": "Prayer Times",
-      "url": "https://legendary-mochi-d15d36.netlify.app/qibla-compass.html#prayer",
-      "chosenIconUrl": "https://legendary-mochi-d15d36.netlify.app/icon-192.png"
+      "url": "https://destrox202-glitch.github.io/#prayer",
+      "chosenIconUrl": "https://destrox202-glitch.github.io/icon-192.png"
     }
   ],
   "generatorApp": "bubblewrap-cli",
-  "webManifestUrl": "https://legendary-mochi-d15d36.netlify.app/manifest.json",
+  "webManifestUrl": "https://destrox202-glitch.github.io/manifest.json",
   "fallbackType": "customtabs",
   "features": {
     "locationDelegation": {
@@ -50,7 +50,7 @@
   "enableSiteSettingsShortcut": true,
   "isChromeOSOnly": false,
   "isMetaQuest": false,
-  "fullScopeUrl": "https://legendary-mochi-d15d36.netlify.app/",
+  "fullScopeUrl": "https://destrox202-glitch.github.io/",
   "minSdkVersion": 21,
   "orientation": "portrait",
   "fingerprints": [],
